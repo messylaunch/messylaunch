@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#0f172a"/>
+  <path d="M20 82 L60 62 L100 82 L100 92 L60 72 L20 92 Z" fill="#f59e0b"/>
+  <path d="M20 66 L60 46 L100 66 L100 76 L60 56 L20 76 Z" fill="#fbbf24" opacity="0.8"/>
+  <text x="60" y="38" font-family="Arial Black, Arial, sans-serif" font-size="26" font-weight="900" fill="#f8fafc" text-anchor="middle">BM</text>
+  <text x="60" y="108" font-family="Arial, sans-serif" font-size="11" letter-spacing="2" fill="#94a3b8" text-anchor="middle">COATINGS</text>
+</svg>
