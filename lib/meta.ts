@@ -14,16 +14,16 @@ export const ITEM_TYPES: Record<string, { label: string; emoji: string; hint: st
 };
 
 export const TASK_STATUS: Record<string, { label: string; color: string }> = {
-  OPEN: { label: "Open", color: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
-  SUBMITTED: { label: "Submitted — needs review", color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-  APPROVED: { label: "Approved", color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
-  CHANGES_REQUESTED: { label: "Changes requested", color: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
+  OPEN: { label: "Open", color: "bg-info/15 text-info border-info/30" },
+  SUBMITTED: { label: "Submitted — needs review", color: "bg-warn/15 text-warn border-warn/30" },
+  APPROVED: { label: "Approved", color: "bg-ok/15 text-ok border-ok/30" },
+  CHANGES_REQUESTED: { label: "Changes requested", color: "bg-err/15 text-err border-err/30" },
 };
 
 export const PROJECT_STATUS: Record<string, { label: string; color: string }> = {
-  ACTIVE: { label: "Active", color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
-  ON_HOLD: { label: "On hold", color: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-  COMPLETE: { label: "Complete", color: "bg-slate-500/15 text-slate-300 border-slate-500/30" },
+  ACTIVE: { label: "Active", color: "bg-ok/15 text-ok border-ok/30" },
+  ON_HOLD: { label: "On hold", color: "bg-warn/15 text-warn border-warn/30" },
+  COMPLETE: { label: "Complete", color: "bg-card2 text-sub border-line" },
 };
 
 export function fmtDate(d: Date | string | null | undefined) {

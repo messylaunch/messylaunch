@@ -152,7 +152,7 @@ async function main() {
     },
   });
 
-  const pressPlay = await db.business.create({
+  await db.business.create({
     data: {
       clientId: deja.id,
       nicheId: niches["nails-beauty"].id,
@@ -172,7 +172,7 @@ async function main() {
     },
   });
 
-  const loudPack = await db.business.create({
+  await db.business.create({
     data: {
       clientId: tasha.id,
       nicheId: niches["music"].id,

@@ -19,12 +19,12 @@ export default async function ProjectsPage() {
     <div className="mx-auto max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-white">Projects 🤝</h1>
-          <p className="mt-1 text-slate-400">Built together — threads, two-way tasks, and real deadlines.</p>
+          <h1 className="font-display text-3xl font-black text-ink">Projects 🤝</h1>
+          <p className="mt-1 text-sub">Built together — threads, two-way tasks, and real deadlines.</p>
         </div>
         <Link
           href="/admin/ai?kind=PROJECT"
-          className="rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-orange-400"
+          className="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-accent-ink hover:brightness-110"
         >
           ✨ New with AI
         </Link>
@@ -39,25 +39,25 @@ export default async function ProjectsPage() {
             <Link
               key={p.id}
               href={`/admin/projects/${p.slug}`}
-              className="block rounded-2xl border border-slate-800 bg-slate-900/50 p-5 transition hover:border-orange-500/50"
+              className="block card card-hover p-5"
             >
               <div className="flex flex-wrap items-center gap-3">
                 {p.business.logoUrl && <img src={p.business.logoUrl} alt="" className="h-11 w-11 rounded-xl" />}
                 <div>
-                  <p className="font-bold text-white">
-                    {p.business.name} <span className="text-slate-500">·</span> {p.title}
+                  <p className="font-bold text-ink">
+                    {p.business.name} <span className="text-faint">·</span> {p.title}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-faint">
                     with {p.business.client.user.name} · due {fmtDate(p.dueDate)}
                   </p>
                 </div>
                 <div className="ml-auto flex items-center gap-2 text-xs">
                   {needsReview > 0 && (
-                    <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-amber-300">
+                    <span className="rounded-full border border-warn/30 bg-warn/10 px-2 py-0.5 text-warn">
                       {needsReview} to review
                     </span>
                   )}
-                  <span className="rounded-full border border-slate-700 bg-slate-800/60 px-2 py-0.5 text-slate-400">
+                  <span className="rounded-full border border-line bg-card2 px-2 py-0.5 text-sub">
                     {openTasks} open tasks · {p._count.messages} msgs
                   </span>
                   <span className={`rounded-full border px-2 py-0.5 ${status.color}`}>{status.label}</span>

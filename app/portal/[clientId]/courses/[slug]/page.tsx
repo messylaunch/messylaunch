@@ -24,12 +24,12 @@ export default async function PortalCourse({
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 space-y-8">
       <div>
-        <Link href={`/portal/${clientId}`} className="text-sm text-slate-500 hover:text-slate-300">
+        <Link href={`/portal/${clientId}`} className="text-sm text-faint hover:text-sub">
           ← Your portal
         </Link>
-        <h1 className="mt-2 text-3xl font-black text-white">{course.title}</h1>
-        <p className="mt-2 max-w-2xl text-slate-400">{course.description}</p>
-        <p className="mt-2 text-sm text-slate-500">{course.durationWeeks}-week pace — start whenever, keep the rhythm.</p>
+        <h1 className="mt-2 font-display text-3xl font-black text-ink">{course.title}</h1>
+        <p className="mt-2 max-w-2xl text-sub">{course.description}</p>
+        <p className="mt-2 text-sm text-faint">{course.durationWeeks}-week pace — start whenever, keep the rhythm.</p>
       </div>
       <Curriculum sections={course.modules.map((m) => ({ id: m.id, title: m.title, items: m.lessons }))} />
     </div>

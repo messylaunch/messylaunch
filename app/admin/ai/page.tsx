@@ -9,8 +9,8 @@ export default async function AiPage({ searchParams }: { searchParams: Promise<{
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-3xl font-black text-white">AI Builder ✨</h1>
-      <p className="mt-1 text-slate-400">
+      <h1 className="font-display text-3xl font-black text-ink">AI Builder ✨</h1>
+      <p className="mt-1 text-sub">
         Tell it about your customer. It drafts a course or project outline — modeled on the way you already build them.
       </p>
       <div className="mt-8">

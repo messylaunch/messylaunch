@@ -32,65 +32,65 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <div>
-        <Link href="/admin/projects" className="text-sm text-slate-500 hover:text-slate-300">
+        <Link href="/admin/projects" className="text-sm text-faint hover:text-sub">
           ← Projects
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-4">
           {project.business.logoUrl && <img src={project.business.logoUrl} alt="" className="h-14 w-14 rounded-2xl" />}
           <div>
-            <h1 className="text-3xl font-black text-white">{project.title}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="font-display text-3xl font-black text-ink">{project.title}</h1>
+            <p className="text-sm text-faint">
               {project.business.name} · with {project.business.client.user.name} · due {fmtDate(project.dueDate)}
             </p>
           </div>
           <span className={`ml-auto rounded-full border px-3 py-1 text-sm ${status.color}`}>{status.label}</span>
         </div>
-        {project.description && <p className="mt-3 max-w-3xl text-slate-400">{project.description}</p>}
+        {project.description && <p className="mt-3 max-w-3xl text-sub">{project.description}</p>}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Left: tasks */}
         <div className="space-y-6">
           <section>
-            <h2 className="mb-3 text-lg font-bold text-white">📤 Client owes ({clientTasks.length})</h2>
+            <h2 className="mb-3 text-lg font-bold text-ink">📤 Client owes ({clientTasks.length})</h2>
             <div className="space-y-3">
               {clientTasks.map((t) => (
                 <TaskCard key={t.id} task={t} perspective="ADMIN" />
               ))}
-              {clientTasks.length === 0 && <p className="text-sm text-slate-500">Nothing requested from the client yet.</p>}
+              {clientTasks.length === 0 && <p className="text-sm text-faint">Nothing requested from the client yet.</p>}
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-white">🔧 You owe ({adminTasks.length})</h2>
+            <h2 className="mb-3 text-lg font-bold text-ink">🔧 You owe ({adminTasks.length})</h2>
             <div className="space-y-3">
               {adminTasks.map((t) => (
                 <TaskCard key={t.id} task={t} perspective="ADMIN" />
               ))}
-              {adminTasks.length === 0 && <p className="text-sm text-slate-500">You don&apos;t owe anything here yet.</p>}
+              {adminTasks.length === 0 && <p className="text-sm text-faint">You don&apos;t owe anything here yet.</p>}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <h3 className="mb-3 font-bold text-white">+ New task / request</h3>
+          <section className="card p-5">
+            <h3 className="mb-3 font-bold text-ink">+ New task / request</h3>
             <form action={createTask} className="space-y-3">
               <input type="hidden" name="projectId" value={project.id} />
               <input
                 name="title"
                 required
                 placeholder="What's needed? e.g. Send 5 photos of your work"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm placeholder:text-slate-600 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-lg border border-line bg-card2 px-3 py-2 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
               />
               <textarea
                 name="details"
                 rows={2}
                 placeholder="Details (optional)"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm placeholder:text-slate-600 focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-lg border border-line bg-card2 px-3 py-2 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
               />
               <div className="flex flex-wrap items-center gap-3">
                 <select
                   name="assignedTo"
-                  className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                  className="rounded-lg border border-line bg-card2 px-3 py-2 text-sm focus:border-accent focus:outline-none"
                 >
                   <option value="CLIENT">Client owes this</option>
                   <option value="ADMIN">I owe this</option>
@@ -98,9 +98,9 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
                 <input
                   type="date"
                   name="dueDate"
-                  className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300 focus:border-orange-500 focus:outline-none"
+                  className="rounded-lg border border-line bg-card2 px-3 py-2 text-sm text-sub focus:border-accent focus:outline-none"
                 />
-                <button className="ml-auto rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-orange-400">
+                <button className="ml-auto rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-ink hover:brightness-110">
                   Add task
                 </button>
               </div>
@@ -109,14 +109,14 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
         </div>
 
         {/* Right: thread */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/30 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">💬 Thread with {project.business.client.user.name}</h2>
+        <section className="card p-5">
+          <h2 className="mb-4 text-lg font-bold text-ink">💬 Thread with {project.business.client.user.name}</h2>
           <Thread projectId={project.id} messages={project.messages} viewerId={admin.id} />
         </section>
       </div>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">📚 Project content</h2>
+        <h2 className="mb-3 text-lg font-bold text-ink">📚 Project content</h2>
         <Curriculum sections={project.sections} />
       </section>
     </div>

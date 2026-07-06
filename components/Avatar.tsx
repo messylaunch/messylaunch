@@ -7,7 +7,7 @@ export function Avatar({ src, name, size = 40 }: { src?: string | null; name: st
         alt={name}
         width={size}
         height={size}
-        className="rounded-full object-cover ring-2 ring-slate-700"
+        className="rounded-full object-cover ring-2 ring-line"
         style={{ width: size, height: size }}
       />
     );
@@ -19,7 +19,7 @@ export function Avatar({ src, name, size = 40 }: { src?: string | null; name: st
     .join("");
   return (
     <div
-      className="rounded-full bg-orange-500/20 text-orange-300 flex items-center justify-center font-bold ring-2 ring-slate-700"
+      className="rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold ring-2 ring-line"
       style={{ width: size, height: size, fontSize: size * 0.4 }}
     >
       {initials}

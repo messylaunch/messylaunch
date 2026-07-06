@@ -14,27 +14,34 @@ export type CurriculumSection = { id: string; title: string; items: CurriculumIt
 // Used by both the admin views and the client portal.
 export function Curriculum({ sections }: { sections: CurriculumSection[] }) {
   if (!sections.length) {
-    return <p className="text-slate-500 text-sm">No content yet.</p>;
+    return <p className="text-faint text-sm">No content yet.</p>;
   }
   return (
     <div className="space-y-4">
       {sections.map((section, i) => (
-        <details key={section.id} open={i === 0} className="rounded-xl border border-slate-800 bg-slate-900/60">
-          <summary className="cursor-pointer select-none px-4 py-3 font-semibold text-slate-100 flex items-center gap-2">
-            <span className="text-orange-400">📁</span> {section.title}
-            <span className="ml-auto text-xs font-normal text-slate-500">{section.items.length} items</span>
+        <details key={section.id} open={i === 0} className="folder card overflow-hidden !rounded-2xl">
+          <summary className="flex cursor-pointer select-none items-center gap-3 px-5 py-4 font-display font-semibold text-ink transition hover:bg-card2/60">
+            <span className="caret text-accent" aria-hidden>
+              ▸
+            </span>
+            <span className="text-accent" aria-hidden>📁</span>
+            {section.title}
+            <span className="chip ml-auto font-mono">{section.items.length} items</span>
           </summary>
-          <div className="border-t border-slate-800 divide-y divide-slate-800/60">
+          <div className="divide-y divide-line border-t border-line">
             {section.items.map((item) => (
-              <details key={item.id} className="group">
-                <summary className="cursor-pointer select-none px-4 py-2.5 flex items-center gap-3 hover:bg-slate-800/40">
+              <details key={item.id} className="folder group">
+                <summary className="flex cursor-pointer select-none items-center gap-3 px-5 py-3 transition hover:bg-card2/60">
+                  <span className="caret text-faint" aria-hidden>▸</span>
                   <ItemBadge type={item.type} />
-                  <span className="text-sm text-slate-200">{item.title}</span>
-                  {item.bunnyVideoId && <span className="text-xs text-slate-500">▶ video</span>}
-                </summary>
-                <div className="px-5 pb-4 pt-1 space-y-3">
+                  <span className="text-sm text-ink">{item.title}</span>
                   {item.bunnyVideoId && (
-                    <div className="aspect-video max-w-2xl overflow-hidden rounded-lg border border-slate-800 bg-black">
+                    <span className="chip font-mono !text-accent">▶ video</span>
+                  )}
+                </summary>
+                <div className="space-y-3 px-6 pb-5 pt-1">
+                  {item.bunnyVideoId && (
+                    <div className="aspect-video max-w-2xl overflow-hidden rounded-xl border border-line bg-black shadow-lg">
                       <iframe
                         src={embedUrl(item.bunnyVideoId)}
                         className="h-full w-full"
@@ -44,7 +51,11 @@ export function Curriculum({ sections }: { sections: CurriculumSection[] }) {
                       />
                     </div>
                   )}
-                  {item.content && <p className="text-sm leading-relaxed text-slate-400 max-w-2xl whitespace-pre-line">{item.content}</p>}
+                  {item.content && (
+                    <p className="max-w-2xl whitespace-pre-line border-l-2 border-accent/40 pl-4 text-sm leading-relaxed text-sub">
+                      {item.content}
+                    </p>
+                  )}
                 </div>
               </details>
             ))}

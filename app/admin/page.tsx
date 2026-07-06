@@ -36,32 +36,32 @@ export default async function AdminDashboard() {
   return (
     <div className="mx-auto max-w-5xl space-y-10">
       <div>
-        <h1 className="text-3xl font-black text-white">Mission Control 🎛️</h1>
-        <p className="mt-1 text-slate-400">Everything that needs your attention, across every project.</p>
+        <h1 className="font-display text-3xl font-black text-ink">Mission Control 🎛️</h1>
+        <p className="mt-1 text-sub">Everything that needs your attention, across every project.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: "Needs your review", value: needsReview.length, tone: "text-amber-300" },
-          { label: "You owe", value: myOpenTasks.length, tone: "text-orange-300" },
-          { label: "Active projects", value: activeProjects, tone: "text-emerald-300" },
+          { label: "Needs your review", value: needsReview.length, tone: "text-warn" },
+          { label: "You owe", value: myOpenTasks.length, tone: "text-accent" },
+          { label: "Active projects", value: activeProjects, tone: "text-ok" },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
-            <p className={`text-3xl font-black ${s.tone}`}>{s.value}</p>
-            <p className="mt-1 text-sm text-slate-400">{s.label}</p>
+          <div key={s.label} className="card p-5">
+            <p className={`font-display text-3xl font-black ${s.tone}`}>{s.value}</p>
+            <p className="mt-1 text-sm text-sub">{s.label}</p>
           </div>
         ))}
       </div>
 
       {needsReview.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold text-white">📥 Submitted — review these</h2>
+          <h2 className="mb-3 text-lg font-bold text-ink">📥 Submitted — review these</h2>
           <div className="space-y-3">
             {needsReview.map((t) => (
               <div key={t.id}>
                 <Link
                   href={`/admin/projects/${t.project.slug}`}
-                  className="mb-1 block text-xs text-slate-500 hover:text-orange-300"
+                  className="mb-1 block text-xs text-faint hover:text-accent"
                 >
                   {t.project.business.name} · {t.project.title}
                 </Link>
@@ -73,14 +73,14 @@ export default async function AdminDashboard() {
       )}
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">🔧 Your task list</h2>
-        {myOpenTasks.length === 0 && <p className="text-sm text-slate-500">Nothing on your plate. Rare air. 🎉</p>}
+        <h2 className="mb-3 text-lg font-bold text-ink">🔧 Your task list</h2>
+        {myOpenTasks.length === 0 && <p className="text-sm text-faint">Nothing on your plate. Rare air. 🎉</p>}
         <div className="space-y-3">
           {myOpenTasks.map((t) => (
             <div key={t.id}>
               <Link
                 href={`/admin/projects/${t.project.slug}`}
-                className="mb-1 block text-xs text-slate-500 hover:text-orange-300"
+                className="mb-1 block text-xs text-faint hover:text-accent"
               >
                 {t.project.business.name} · {t.project.title}
               </Link>
@@ -91,24 +91,24 @@ export default async function AdminDashboard() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">⏳ Waiting on clients</h2>
-        <div className="overflow-hidden rounded-xl border border-slate-800">
+        <h2 className="mb-3 text-lg font-bold text-ink">⏳ Waiting on clients</h2>
+        <div className="overflow-hidden rounded-xl border border-line">
           <table className="w-full text-sm">
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-line">
               {waitingOnClients.map((t) => (
-                <tr key={t.id} className="bg-slate-900/40 hover:bg-slate-900">
-                  <td className="px-4 py-3 text-slate-200">{t.title}</td>
-                  <td className="px-4 py-3 text-slate-500">
-                    <Link href={`/admin/projects/${t.project.slug}`} className="hover:text-orange-300">
+                <tr key={t.id} className="bg-card hover:bg-card2">
+                  <td className="px-4 py-3 text-ink">{t.title}</td>
+                  <td className="px-4 py-3 text-faint">
+                    <Link href={`/admin/projects/${t.project.slug}`} className="hover:text-accent">
                       {t.project.business.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-500">due {fmtDate(t.dueDate)}</td>
+                  <td className="px-4 py-3 text-right text-faint">due {fmtDate(t.dueDate)}</td>
                 </tr>
               ))}
               {waitingOnClients.length === 0 && (
                 <tr>
-                  <td className="px-4 py-3 text-slate-500">Clients are all caught up.</td>
+                  <td className="px-4 py-3 text-faint">Clients are all caught up.</td>
                 </tr>
               )}
             </tbody>
@@ -117,17 +117,17 @@ export default async function AdminDashboard() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">💬 Latest in the threads</h2>
+        <h2 className="mb-3 text-lg font-bold text-ink">💬 Latest in the threads</h2>
         <div className="space-y-2">
           {recentMessages.map((m) => (
             <Link
               key={m.id}
               href={`/admin/projects/${m.project.slug}`}
-              className="block rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-3 text-sm hover:border-orange-500/40"
+              className="block rounded-xl border border-line bg-card px-4 py-3 text-sm hover:border-accent/40"
             >
-              <span className="font-semibold text-slate-200">{m.author.name}</span>
-              <span className="text-slate-500"> in {m.project.business.name} · {m.project.title}: </span>
-              <span className="text-slate-400">{m.body.slice(0, 90)}{m.body.length > 90 ? "…" : ""}</span>
+              <span className="font-semibold text-ink">{m.author.name}</span>
+              <span className="text-faint"> in {m.project.business.name} · {m.project.title}: </span>
+              <span className="text-sub">{m.body.slice(0, 90)}{m.body.length > 90 ? "…" : ""}</span>
             </Link>
           ))}
         </div>

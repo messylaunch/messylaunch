@@ -29,10 +29,10 @@ export default async function ClientPortal({ params }: { params: Promise<{ clien
       <div className="flex items-center gap-4">
         <Avatar src={client.user.avatarUrl} name={client.user.name} size={56} />
         <div>
-          <h1 className="text-3xl font-black text-white">Hey, {client.user.name.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="font-display text-3xl font-black text-ink">Hey, {client.user.name.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-faint">
             Your Messy Launch home base ·{" "}
-            <Link href="/portal" className="underline hover:text-slate-300">
+            <Link href="/portal" className="underline hover:text-sub">
               switch client
             </Link>
           </p>
@@ -40,12 +40,12 @@ export default async function ClientPortal({ params }: { params: Promise<{ clien
       </div>
 
       {owedByMe.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <p className="font-bold text-amber-300">🔔 Michael is waiting on {owedByMe.length} thing{owedByMe.length === 1 ? "" : "s"} from you</p>
-          <ul className="mt-2 space-y-1 text-sm text-slate-300">
+        <div className="mt-8 rounded-2xl border border-warn/30 bg-warn/5 p-5">
+          <p className="font-bold text-warn">🔔 Michael is waiting on {owedByMe.length} thing{owedByMe.length === 1 ? "" : "s"} from you</p>
+          <ul className="mt-2 space-y-1 text-sm text-sub">
             {owedByMe.map((t) => (
               <li key={t.id}>
-                • {t.title} <span className="text-slate-500">(due {fmtDate(t.dueDate)})</span>
+                • {t.title} <span className="text-faint">(due {fmtDate(t.dueDate)})</span>
               </li>
             ))}
           </ul>
@@ -53,7 +53,7 @@ export default async function ClientPortal({ params }: { params: Promise<{ clien
       )}
 
       <section className="mt-10">
-        <h2 className="mb-4 text-xl font-bold text-white">🤝 Your projects</h2>
+        <h2 className="mb-4 font-display text-xl font-bold text-ink">🤝 Your projects</h2>
         <div className="space-y-4">
           {projects.map((p) => {
             const status = PROJECT_STATUS[p.status] ?? PROJECT_STATUS.ACTIVE;
@@ -61,12 +61,12 @@ export default async function ClientPortal({ params }: { params: Promise<{ clien
               <Link
                 key={p.id}
                 href={`/portal/${client.id}/projects/${p.slug}`}
-                className="flex items-center gap-4 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 transition hover:border-orange-500/50"
+                className="flex items-center gap-4 card card-hover p-5"
               >
                 {p.business.logoUrl && <img src={p.business.logoUrl} alt="" className="h-12 w-12 rounded-xl" />}
                 <div>
-                  <p className="font-bold text-white">{p.title}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-bold text-ink">{p.title}</p>
+                  <p className="text-xs text-faint">
                     {p.business.name} · due {fmtDate(p.dueDate)}
                   </p>
                 </div>
@@ -74,28 +74,28 @@ export default async function ClientPortal({ params }: { params: Promise<{ clien
               </Link>
             );
           })}
-          {projects.length === 0 && <p className="text-sm text-slate-500">No projects yet.</p>}
+          {projects.length === 0 && <p className="text-sm text-faint">No projects yet.</p>}
         </div>
       </section>
 
       <section className="mt-10">
-        <h2 className="mb-4 text-xl font-bold text-white">🎓 Your courses</h2>
+        <h2 className="mb-4 font-display text-xl font-bold text-ink">🎓 Your courses</h2>
         <div className="space-y-4">
           {client.enrollments.map((e) => (
             <Link
               key={e.id}
               href={`/portal/${client.id}/courses/${e.course.slug}`}
-              className="block rounded-2xl border border-slate-800 bg-slate-900/50 p-5 transition hover:border-orange-500/50"
+              className="block card card-hover p-5"
             >
-              <p className="font-bold text-white">{e.course.title}</p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="font-bold text-ink">{e.course.title}</p>
+              <p className="mt-1 text-xs text-faint">
                 {e.course.durationWeeks}-week pace · {e.course.modules.length} modules ·{" "}
                 {e.course.modules.reduce((n, m) => n + m._count.lessons, 0)} lessons · started{" "}
                 {new Date(e.startedAt).toLocaleDateString()}
               </p>
             </Link>
           ))}
-          {client.enrollments.length === 0 && <p className="text-sm text-slate-500">No courses yet.</p>}
+          {client.enrollments.length === 0 && <p className="text-sm text-faint">No courses yet.</p>}
         </div>
       </section>
     </div>

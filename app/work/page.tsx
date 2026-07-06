@@ -15,8 +15,8 @@ export default async function WorkPage() {
     <>
       <SiteNav />
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-16">
-        <h1 className="text-4xl font-black text-white">Launches 🚀</h1>
-        <p className="mt-3 max-w-2xl text-slate-400">
+        <h1 className="font-display text-4xl font-black text-ink">Launches 🚀</h1>
+        <p className="mt-3 max-w-2xl text-sub">
           Real businesses, real messy starts, real first wins. This is what the Messy Launch looks like — and their
           time to shine.
         </p>
@@ -25,42 +25,42 @@ export default async function WorkPage() {
             <article
               key={b.id}
               id={b.slug}
-              className="scroll-mt-24 rounded-2xl border border-slate-800 bg-slate-900/50 p-7"
+              className="scroll-mt-24 card p-7"
             >
               <div className="flex flex-wrap items-center gap-4">
                 {b.logoUrl && <img src={b.logoUrl} alt={b.name} className="h-14 w-14 rounded-2xl" />}
                 <div>
-                  <h2 className="text-xl font-bold text-white">{b.name}</h2>
-                  <p className="text-sm text-slate-500">{b.location}</p>
+                  <h2 className="font-display text-xl font-bold text-ink">{b.name}</h2>
+                  <p className="text-sm text-faint">{b.location}</p>
                 </div>
                 {b.niche && (
                   <Link
                     href={`/niches/${b.niche.slug}`}
-                    className="ml-auto rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-slate-300 hover:border-orange-500/50"
+                    className="ml-auto rounded-full border border-line bg-card2 px-3 py-1 text-xs text-sub hover:border-accent/50"
                   >
                     {b.niche.emoji} {b.niche.name}
                   </Link>
                 )}
               </div>
-              {b.story && <p className="mt-4 text-sm leading-relaxed text-slate-300">{b.story}</p>}
+              {b.story && <p className="mt-4 text-sm leading-relaxed text-sub">{b.story}</p>}
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {b.firstWin && (
-                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-400">First win 🏆</p>
-                    <p className="mt-2 text-sm text-slate-300">{b.firstWin}</p>
+                  <div className="rounded-xl border border-ok/20 bg-ok/5 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-ok">First win 🏆</p>
+                    <p className="mt-2 text-sm text-sub">{b.firstWin}</p>
                   </div>
                 )}
                 {b.currentState && (
-                  <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-orange-400">Now 🚀</p>
-                    <p className="mt-2 text-sm text-slate-300">{b.currentState}</p>
+                  <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-accent">Now 🚀</p>
+                    <p className="mt-2 text-sm text-sub">{b.currentState}</p>
                   </div>
                 )}
               </div>
               {b.services && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {b.services.split(",").map((s) => (
-                    <span key={s} className="rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-slate-300">
+                    <span key={s} className="rounded-full border border-line bg-card2 px-3 py-1 text-xs text-sub">
                       {s.trim()}
                     </span>
                   ))}

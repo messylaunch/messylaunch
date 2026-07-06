@@ -21,28 +21,28 @@ export function TaskCard({ task, perspective }: { task: TaskLike; perspective: "
   const overdue = task.status === "OPEN" && isOverdue(task.dueDate);
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+    <div className="rounded-xl border border-line bg-card p-4 space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
             task.assignedTo === "CLIENT"
-              ? "bg-purple-500/15 text-purple-300 border-purple-500/30"
-              : "bg-orange-500/15 text-orange-300 border-orange-500/30"
+              ? "bg-pop/15 text-pop border-pop/30"
+              : "bg-accent/15 text-accent border-accent/30"
           }`}
         >
           {task.assignedTo === "CLIENT" ? "Client owes" : "Michael owes"}
         </span>
         <span className={`text-xs px-2 py-0.5 rounded-full border ${status.color}`}>{status.label}</span>
-        <span className={`ml-auto text-xs ${overdue ? "text-rose-400 font-semibold" : "text-slate-500"}`}>
+        <span className={`ml-auto text-xs ${overdue ? "text-err font-semibold" : "text-faint"}`}>
           {overdue ? "⚠ overdue — " : "due "}
           {fmtDate(task.dueDate)}
         </span>
       </div>
-      <p className="font-medium text-slate-100">{task.title}</p>
-      {task.details && <p className="text-sm text-slate-400">{task.details}</p>}
+      <p className="font-medium text-ink">{task.title}</p>
+      {task.details && <p className="text-sm text-sub">{task.details}</p>}
       {task.submissionNote && (
-        <p className="text-sm rounded-lg bg-slate-800/60 border border-slate-700/60 px-3 py-2 text-slate-300">
-          <span className="text-slate-500">Turned in:</span> {task.submissionNote}
+        <p className="text-sm rounded-lg bg-card2 border border-line px-3 py-2 text-sub">
+          <span className="text-faint">Turned in:</span> {task.submissionNote}
         </p>
       )}
 
@@ -52,9 +52,9 @@ export function TaskCard({ task, perspective }: { task: TaskLike; perspective: "
           <input
             name="submissionNote"
             placeholder="What are you turning in? (note or link)"
-            className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm placeholder:text-slate-600 focus:border-orange-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-line bg-card2 px-3 py-1.5 text-sm placeholder:text-faint focus:border-accent focus:outline-none"
           />
-          <button className="rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-semibold text-slate-950 hover:bg-orange-400">
+          <button className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-accent-ink hover:brightness-110">
             Submit
           </button>
         </form>
@@ -65,14 +65,14 @@ export function TaskCard({ task, perspective }: { task: TaskLike; perspective: "
           <form action={reviewTask}>
             <input type="hidden" name="taskId" value={task.id} />
             <input type="hidden" name="decision" value="APPROVED" />
-            <button className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold hover:bg-emerald-500">
+            <button className="rounded-lg border border-ok/40 bg-ok/15 px-3 py-1.5 text-sm font-semibold text-ok transition hover:bg-ok/25">
               ✓ Approve
             </button>
           </form>
           <form action={reviewTask}>
             <input type="hidden" name="taskId" value={task.id} />
             <input type="hidden" name="decision" value="CHANGES_REQUESTED" />
-            <button className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-sm font-semibold text-rose-300 hover:bg-rose-500/20">
+            <button className="rounded-lg border border-err/40 bg-err/10 px-3 py-1.5 text-sm font-semibold text-err hover:bg-err/20">
               Request changes
             </button>
           </form>
@@ -82,7 +82,7 @@ export function TaskCard({ task, perspective }: { task: TaskLike; perspective: "
       {mine && task.status === "CHANGES_REQUESTED" && (
         <form action={reopenTask}>
           <input type="hidden" name="taskId" value={task.id} />
-          <button className="text-xs text-slate-400 underline hover:text-slate-200">Mark as back in progress</button>
+          <button className="text-xs text-sub underline hover:text-ink">Mark as back in progress</button>
         </form>
       )}
     </div>

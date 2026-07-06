@@ -1,31 +1,35 @@
 import Link from "next/link";
+import { Rocket, Wordmark } from "./Logo";
+import { ThemeToggle } from "./Theme";
 
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-800/70 bg-slate-950/80 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 font-black tracking-tight text-lg">
-          <span className="text-2xl">🚀</span>
-          <span>
-            Messy<span className="text-orange-400">Launch</span>
+    <header className="sticky top-0 z-30 border-b border-line bg-paper/80 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3.5">
+        <Link href="/" className="group flex items-center gap-2.5 text-lg">
+          <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:rotate-6">
+            <Rocket size={22} />
           </span>
+          <Wordmark />
         </Link>
-        <div className="ml-auto flex items-center gap-5 text-sm text-slate-300">
-          <Link href="/niches" className="hover:text-white">
-            Niches
-          </Link>
-          <Link href="/work" className="hover:text-white">
-            Launches
-          </Link>
-          <Link href="/portal" className="hover:text-white">
-            Client Portal
-          </Link>
-          <Link
-            href="/admin"
-            className="rounded-lg border border-orange-500/40 bg-orange-500/10 px-3 py-1.5 font-semibold text-orange-300 hover:bg-orange-500/20"
-          >
+        <div className="ml-auto flex items-center gap-1 text-sm">
+          {[
+            { href: "/niches", label: "Niches" },
+            { href: "/work", label: "Launches" },
+            { href: "/portal", label: "Client Portal" },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="rounded-lg px-3 py-2 text-sub transition hover:bg-card2 hover:text-ink"
+            >
+              {l.label}
+            </Link>
+          ))}
+          <Link href="/admin" className="btn btn-primary ml-2 !px-4 !py-2 text-xs uppercase tracking-wider">
             Mission Control
           </Link>
+          <ThemeToggle className="ml-2" />
         </div>
       </nav>
     </header>
@@ -34,8 +38,33 @@ export function SiteNav() {
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-slate-800/70 py-8 text-center text-sm text-slate-500">
-      <p>🚀 Messy Launch — we don&apos;t wait for perfect. We launch messy and learn fast.</p>
+    <footer className="mt-auto border-t border-line">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 py-14 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <Rocket size={30} flame />
+            <Wordmark className="text-3xl" />
+          </div>
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-faint">
+            We don&apos;t wait for perfect. We launch messy, learn fast, and teach you to fly the thing yourself.
+          </p>
+        </div>
+        <div className="flex gap-10 text-sm">
+          <div className="space-y-2">
+            <p className="eyebrow">Explore</p>
+            <Link href="/niches" className="block text-sub transition hover:text-accent">Niches</Link>
+            <Link href="/work" className="block text-sub transition hover:text-accent">Launches</Link>
+          </div>
+          <div className="space-y-2">
+            <p className="eyebrow">Inside</p>
+            <Link href="/portal" className="block text-sub transition hover:text-accent">Client Portal</Link>
+            <Link href="/admin" className="block text-sub transition hover:text-accent">Mission Control</Link>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-line py-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.3em] text-faint">
+        Messy Launch · T-minus whenever you&apos;re ready
+      </div>
     </footer>
   );
 }

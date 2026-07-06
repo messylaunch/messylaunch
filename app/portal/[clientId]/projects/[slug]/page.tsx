@@ -34,52 +34,52 @@ export default async function PortalProject({
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 space-y-8">
       <div>
-        <Link href={`/portal/${clientId}`} className="text-sm text-slate-500 hover:text-slate-300">
+        <Link href={`/portal/${clientId}`} className="text-sm text-faint hover:text-sub">
           ← Your portal
         </Link>
         <div className="mt-2 flex items-center gap-4">
           {project.business.logoUrl && <img src={project.business.logoUrl} alt="" className="h-14 w-14 rounded-2xl" />}
           <div>
-            <h1 className="text-3xl font-black text-white">{project.title}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="font-display text-3xl font-black text-ink">{project.title}</h1>
+            <p className="text-sm text-faint">
               {project.business.name} · due {fmtDate(project.dueDate)}
             </p>
           </div>
         </div>
-        {project.description && <p className="mt-3 max-w-3xl text-slate-400">{project.description}</p>}
+        {project.description && <p className="mt-3 max-w-3xl text-sub">{project.description}</p>}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           <section>
-            <h2 className="mb-3 text-lg font-bold text-white">📋 Your to-dos ({yourTasks.length})</h2>
+            <h2 className="mb-3 text-lg font-bold text-ink">📋 Your to-dos ({yourTasks.length})</h2>
             <div className="space-y-3">
               {yourTasks.map((t) => (
                 <TaskCard key={t.id} task={t} perspective="CLIENT" />
               ))}
-              {yourTasks.length === 0 && <p className="text-sm text-slate-500">Nothing on your plate right now.</p>}
+              {yourTasks.length === 0 && <p className="text-sm text-faint">Nothing on your plate right now.</p>}
             </div>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-white">🚀 What Michael owes you ({michaelsTasks.length})</h2>
+            <h2 className="mb-3 text-lg font-bold text-ink">🚀 What Michael owes you ({michaelsTasks.length})</h2>
             <div className="space-y-3">
               {michaelsTasks.map((t) => (
                 <TaskCard key={t.id} task={t} perspective="CLIENT" />
               ))}
-              {michaelsTasks.length === 0 && <p className="text-sm text-slate-500">Nothing pending from Michael.</p>}
+              {michaelsTasks.length === 0 && <p className="text-sm text-faint">Nothing pending from Michael.</p>}
             </div>
           </section>
         </div>
 
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/30 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">💬 Thread with Michael</h2>
+        <section className="rounded-2xl border border-line bg-card p-5">
+          <h2 className="mb-4 text-lg font-bold text-ink">💬 Thread with Michael</h2>
           <Thread projectId={project.id} messages={project.messages} viewerId={viewer.id} />
         </section>
       </div>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold text-white">📚 Project content</h2>
+        <h2 className="mb-3 text-lg font-bold text-ink">📚 Project content</h2>
         <Curriculum sections={project.sections} />
       </section>
     </div>
