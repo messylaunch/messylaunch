@@ -98,6 +98,29 @@ model Module {
 // Lesson types cover every section shape you described:
 // OVERVIEW | LESSON | TUTORIAL | SCENARIO | REAL_WORLD | BRAINSTORM |
 // ASSIGNMENT | KNOWLEDGE_CHECK | CONCLUSION | BOOK_CALL
+// In-app notification feed (also mirrored to web push when configured)
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String?
+  href      String? // where clicking it should take this user
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+// Web Push subscription per browser, keyed to a user
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}
+
 model Lesson {
   id           String  @id @default(cuid())
   moduleId     String
@@ -159,6 +182,7 @@ model ProjectItem {
   content      String?
   bunnyVideoId String?
   order        Int            @default(0)
+  completedAt  DateTime? // projects have one client, so completion lives on the item
 }
 
 // A task/request that flows either direction.

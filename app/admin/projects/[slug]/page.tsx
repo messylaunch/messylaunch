@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { Curriculum } from "@/components/Curriculum";
 import { TaskCard } from "@/components/TaskCard";
 import { Thread } from "@/components/Thread";
+import { ProjectPulse } from "@/components/ProjectPulse";
+import { ActivityFeed } from "@/components/ActivityFeed";
+import { BriefButton } from "@/components/BriefButton";
 import { createTask } from "@/lib/actions";
 import { PROJECT_STATUS, fmtDate } from "@/lib/meta";
 
@@ -47,6 +50,9 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
         </div>
         {project.description && <p className="mt-3 max-w-3xl text-sub">{project.description}</p>}
       </div>
+
+      <ProjectPulse tasks={project.tasks} items={project.sections.flatMap((s) => s.items)} />
+      <BriefButton slug={project.slug} />
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Left: tasks */}
@@ -117,7 +123,15 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
 
       <section>
         <h2 className="mb-3 text-lg font-bold text-ink">📚 Project content</h2>
-        <Curriculum sections={project.sections} />
+        <Curriculum sections={project.sections} completable />
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-bold text-ink">🛰️ Mission log</h2>
+        <p className="mb-4 text-sm text-faint">
+          The whole story in order — messages and task milestones together, so anyone can catch up.
+        </p>
+        <ActivityFeed messages={project.messages} tasks={project.tasks} />
       </section>
     </div>
   );

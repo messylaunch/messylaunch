@@ -1,18 +1,25 @@
 import Link from "next/link";
+import { db } from "@/lib/db";
 import { AdminNav } from "@/components/AdminNav";
 import { Rocket, Wordmark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/Theme";
+import { NotificationBell } from "@/components/NotificationBell";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const admin = await db.user.findFirst({ where: { role: "ADMIN" } });
+
   return (
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line bg-card/50 p-5 backdrop-blur md:flex">
-        <Link href="/" className="group mb-2 flex items-center gap-2.5">
-          <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:rotate-6">
-            <Rocket size={22} />
-          </span>
-          <Wordmark className="text-lg" />
-        </Link>
+        <div className="mb-2 flex items-center justify-between">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <span className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:rotate-6">
+              <Rocket size={22} />
+            </span>
+            <Wordmark className="text-lg" />
+          </Link>
+          {admin && <NotificationBell userId={admin.id} align="left" />}
+        </div>
         <p className="mb-6 mt-4 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">Mission Control</p>
         <AdminNav />
         <div className="mt-auto space-y-4">

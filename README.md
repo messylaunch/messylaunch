@@ -27,8 +27,20 @@ npm run dev               # http://localhost:3000
 
 Copy `.env.example` to `.env` to enable:
 
-- **AI Builder** — set `ANTHROPIC_API_KEY` (without it you get a sample outline so the flow still demos)
+- **AI Builder & catch-up briefs** — set `ANTHROPIC_API_KEY` (without it you get sample output so the flows still demo)
 - **Bunny.net video** — set `BUNNY_STREAM_LIBRARY_ID` + `BUNNY_STREAM_API_KEY`; lessons with a Bunny video ID render the Stream player, and `POST /api/bunny/videos` registers uploads
+- **Push notifications** — run `npx web-push generate-vapid-keys` once and set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY`. In-app notifications (the bell) work without this; push adds device notifications via the PWA service worker.
+
+## PWA & notifications
+
+The app is installable (manifest + service worker + icons). Every project event — new message, task created, submitted, approved, changes requested — writes an in-app notification for the other party (bell in Mission Control and the portal) and mirrors to web push when VAPID keys are set. `public/sw.js` deliberately doesn't cache pages: this is live collaboration, so it only handles push, notification clicks, and an offline fallback page.
+
+## Working on this repo with Claude Code
+
+- `AGENTS.md` — project memory: verified stack, domain invariants, design tokens, verification bar
+- `.claude/agents/` — `repo-mapper` (read-only code tracing), `ux-auditor` (Playwright-driven UX audit), `data-reviewer` (schema/integrity review)
+- `.claude/skills/` — `/health-check` (deps → schema → seed → lint → types → build → smoke) and `/ui-review` (both-theme + mobile screenshot review)
+- `scripts/smoke.mjs` — boots the prod build and asserts every route (and the 404) responds correctly
 
 ## How courses vs. projects work
 

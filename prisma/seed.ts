@@ -843,6 +843,37 @@ async function main() {
     },
   });
 
+  // ---------- Progress + notifications so the new features are visible ----------
+  const kickoffItems = await db.projectItem.findMany({
+    where: { section: { projectId: websiteBuild.id, title: "Kickoff" } },
+  });
+  for (const item of kickoffItems) {
+    await db.projectItem.update({ where: { id: item.id }, data: { completedAt: days(-4) } });
+  }
+
+  await db.notification.createMany({
+    data: [
+      {
+        userId: michael.id,
+        title: "📥 Ready for review: Write your short bio",
+        body: "On Website Build — approve it or request changes.",
+        href: "/admin/projects/better-man-website-build",
+      },
+      {
+        userId: michael.id,
+        title: "💬 Marcus Bell on Website Build",
+        body: "Looking at the draft tonight after my last job. First glance on the phone looks clean 💪",
+        href: "/admin/projects/better-man-website-build",
+      },
+      {
+        userId: marcus.user.id,
+        title: "📋 New to-do on Website Build",
+        body: "Send 5 photos of recent jobs",
+        href: `/portal/${marcus.id}/projects/better-man-website-build`,
+      },
+    ],
+  });
+
   console.log("Seeded ✔");
   console.log(`  Users: ${await db.user.count()}  Businesses: ${await db.business.count()}  Niches: ${await db.niche.count()}`);
   console.log(`  Courses: ${await db.course.count()}  Lessons: ${await db.lesson.count()}`);

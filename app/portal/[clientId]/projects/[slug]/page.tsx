@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { Curriculum } from "@/components/Curriculum";
 import { TaskCard } from "@/components/TaskCard";
 import { Thread } from "@/components/Thread";
+import { ProjectPulse } from "@/components/ProjectPulse";
 import { fmtDate } from "@/lib/meta";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,8 @@ export default async function PortalProject({
         {project.description && <p className="mt-3 max-w-3xl text-sub">{project.description}</p>}
       </div>
 
+      <ProjectPulse tasks={project.tasks} items={project.sections.flatMap((s) => s.items)} />
+
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           <section>
@@ -80,7 +83,8 @@ export default async function PortalProject({
 
       <section>
         <h2 className="mb-3 text-lg font-bold text-ink">📚 Project content</h2>
-        <Curriculum sections={project.sections} />
+        <p className="mb-4 text-sm text-faint">Work through these in order and mark each one complete — that&apos;s how we both see progress.</p>
+        <Curriculum sections={project.sections} completable />
       </section>
     </div>
   );
