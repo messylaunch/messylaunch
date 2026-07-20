@@ -1,0 +1,43 @@
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Bricolage_Grotesque } from "next/font/google";
+import { THEME_INIT } from "@/components/Theme";
+import { PwaRegister } from "@/components/PwaRegister";
+import "./globals.css";
+
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Messy Launch — from idea to launched",
+  description:
+    "We help business owners through the messy early stage: get clear on your offer, build your online presence, and launch — while actually understanding what you built.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Messy Launch" },
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#07080e" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f4ed" },
+  ],
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
+      <body className="min-h-full flex flex-col font-sans">
+        <PwaRegister />
+        {children}
+      </body>
+    </html>
+  );
+}

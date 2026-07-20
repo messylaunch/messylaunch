@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#4c0519"/>
+  <circle cx="60" cy="52" r="30" fill="#fb7185"/>
+  <path d="M52 38 L52 66 L76 52 Z" fill="#fff1f2"/>
+  <text x="60" y="102" font-family="Georgia, serif" font-size="13" font-style="italic" fill="#fecdd3" text-anchor="middle">Press Play Nails</text>
+</svg>

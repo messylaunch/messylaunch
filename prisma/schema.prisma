@@ -1,0 +1,253 @@
+// Messy Launch platform schema
+// Courses  = premade, resellable, self-paced (hooked to a duration like 1/2/4/8 weeks)
+// Projects = collaborative, tailored to one business, with a thread + tasks due on real dates
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- People ----------
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      String   @default("CLIENT") // ADMIN | CLIENT
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  client   Client?
+  messages Message[]
+}
+
+model Client {
+  id     String  @id @default(cuid())
+  userId String  @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone  String?
+  notes  String? // private admin notes about where this client is in their journey
+
+  businesses  Business[]
+  enrollments Enrollment[]
+}
+
+// ---------- Niches & Businesses (also the front-end portfolio) ----------
+
+model Niche {
+  id          String @id @default(cuid())
+  slug        String @unique
+  name        String
+  description String
+  emoji       String @default("🚀")
+
+  businesses Business[]
+}
+
+model Business {
+  id       String  @id @default(cuid())
+  clientId String
+  client   Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  nicheId  String?
+  niche    Niche?  @relation(fields: [nicheId], references: [id])
+
+  slug        String  @unique
+  name        String
+  tagline     String?
+  logoUrl     String?
+  location    String?
+  story       String? // their short story — what they do and who they help
+  firstWin    String? // their first win with the messy launch
+  currentState String? // what the business looks like now
+  services    String? // comma-separated: what Messy Launch did for them
+  isPublished Boolean @default(false) // show on the public portfolio?
+
+  projects Project[]
+}
+
+// ---------- Courses (premade, resellable) ----------
+// Course -> Module -> Lesson, like one big folder, module folders, videos inside.
+
+model Course {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  title         String
+  description   String?
+  durationWeeks Int     @default(4) // 1 / 2 / 4 / 8 week time frame
+  status        String  @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  createdAt     DateTime @default(now())
+
+  modules     Module[]
+  enrollments Enrollment[]
+}
+
+model Module {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title    String
+  order    Int    @default(0)
+
+  lessons Lesson[]
+}
+
+// Lesson types cover every section shape you described:
+// OVERVIEW | LESSON | TUTORIAL | SCENARIO | REAL_WORLD | BRAINSTORM |
+// ASSIGNMENT | KNOWLEDGE_CHECK | CONCLUSION | BOOK_CALL
+// ---------- Leads (the "Start your Messy Launch" intake) ----------
+
+model Lead {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  businessName String
+  description  String? // what they do / the idea
+  stage        String // IDEA | LAUNCHED_QUIET | HAS_CLIENTS
+  messy        String? // comma-separated: TECH, MARKETING, CONNECTING, COMMUNITY, PROFIT
+  goal         String? // what a win looks like in 90 days
+  status       String   @default("NEW") // NEW | CONTACTED | CONVERTED | PASSED
+  createdAt    DateTime @default(now())
+}
+
+// ---------- Auth ----------
+// Sessions are opaque random tokens stored hashed; the raw token lives in an
+// httpOnly cookie. Magic-link login tokens are single-use and short-lived.
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// In-app notification feed (also mirrored to web push when configured)
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String?
+  href      String? // where clicking it should take this user
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+// Web Push subscription per browser, keyed to a user
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+}
+
+model Lesson {
+  id           String  @id @default(cuid())
+  moduleId     String
+  module       Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title        String
+  type         String  @default("LESSON")
+  content      String? // markdown-ish body: instructions, questions, prompts
+  bunnyVideoId String? // Bunny.net Stream video GUID — rendered via iframe.mediadelivery.net
+  order        Int     @default(0)
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  startedAt DateTime @default(now())
+
+  @@unique([courseId, clientId])
+}
+
+// ---------- Projects (collaborative, deadline-driven) ----------
+// Same section structure as a course, PLUS a thread and two-way tasks.
+
+model Project {
+  id          String    @id @default(cuid())
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  slug        String    @unique
+  title       String
+  description String?
+  status      String    @default("ACTIVE") // ACTIVE | ON_HOLD | COMPLETE
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+
+  sections ProjectSection[]
+  tasks    Task[]
+  messages Message[]
+}
+
+model ProjectSection {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  order     Int     @default(0)
+
+  items ProjectItem[]
+}
+
+// Same type vocabulary as lessons, so a project can teach too
+model ProjectItem {
+  id           String         @id @default(cuid())
+  sectionId    String
+  section      ProjectSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title        String
+  type         String         @default("LESSON")
+  content      String?
+  bunnyVideoId String?
+  order        Int            @default(0)
+  completedAt  DateTime? // projects have one client, so completion lives on the item
+}
+
+// A task/request that flows either direction.
+// assignedTo: ADMIN (client needs something from you) | CLIENT (you need something from them)
+// Lifecycle: OPEN -> SUBMITTED -> APPROVED, or CHANGES_REQUESTED -> back to OPEN
+model Task {
+  id             String    @id @default(cuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title          String
+  details        String?
+  assignedTo     String    @default("CLIENT") // ADMIN | CLIENT
+  status         String    @default("OPEN")   // OPEN | SUBMITTED | APPROVED | CHANGES_REQUESTED
+  dueDate        DateTime?
+  submissionNote String?   // what was turned in / a link to it
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// The back-and-forth thread on a project
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+}
