@@ -12,7 +12,7 @@ Public marketing site + Mission Control (admin) + Client Portal.
 ## Stack (verified — do not assume otherwise)
 
 - **Next.js 16** App Router, TypeScript, React 19. `params`/`searchParams` are **Promises** — always `await` them.
-- **Prisma 6 + SQLite** (`prisma/dev.db`, gitignored). Schema: `prisma/schema.prisma`. No migrations yet — schema changes go through `npx prisma db push`, then update `prisma/seed.ts`.
+- **Prisma 6 + PostgreSQL** (`DATABASE_URL` env — required; local dev runs its own Postgres). Schema: `prisma/schema.prisma`. No migration files yet — schema changes go through `npx prisma db push`, then update `prisma/seed.ts`.
 - **Tailwind 4** (CSS-first config in `app/globals.css`, no tailwind.config file).
 - **Auth**: session cookies (opaque tokens, hashed in `Session`) + magic-link login (`lib/auth.ts`, `lib/auth-actions.ts`). Guards: `requireAdmin()` / `requireClientAccess(clientId)` in layouts AND in every server action/API — identity always comes from the session, never from form/query data. While `RESEND_API_KEY` is unset, `/login` shows a dev quick-login picker (`authDevMode()`); setting the key turns it off.
 - Optional integrations, all env-gated with graceful fallbacks: Anthropic API (`lib/ai.ts`), Bunny.net Stream (`lib/bunny.ts`), Web Push (`lib/notify.ts`).
@@ -20,7 +20,7 @@ Public marketing site + Mission Control (admin) + Client Portal.
 ## Commands
 
 ```bash
-npx prisma db push   # sync schema to SQLite (run once per fresh clone)
+npx prisma db push   # sync schema to the DATABASE_URL database
 npm run seed         # reset + load sample data (destructive to local data)
 npm run dev          # dev server on :3000
 npm run build        # production build — MUST pass before any commit
@@ -48,8 +48,7 @@ A change is done when: `npm run lint` clean, `npm run build` green, `node script
 
 ## Known debt (don't "discover" these again)
 
-1. SQLite won't survive serverless deploys (Vercel) — needs a hosted DB (e.g. Postgres + Prisma) at deploy time.
-2. No tests beyond the smoke script (it does assert auth walls + anonymous API rejections).
-3. Course lessons have no per-client completion (needs a join table keyed on enrollment).
-4. Bunny upload is API-only; no upload UI in admin yet.
-5. Login emails need `RESEND_API_KEY` configured before production — until then dev quick-login is active.
+1. No tests beyond the smoke script (it does assert auth walls + anonymous API rejections).
+2. Course lessons have no per-client completion (needs a join table keyed on enrollment).
+3. Bunny upload is API-only; no upload UI in admin yet.
+4. Login emails need `RESEND_API_KEY` configured before production — until then dev quick-login is active.

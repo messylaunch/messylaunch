@@ -20,7 +20,8 @@ The platform behind Messy Launch — we help business owners through the messy e
 
 ```bash
 npm install
-npx prisma db push        # creates prisma/dev.db (SQLite)
+# set DATABASE_URL in .env to a Postgres connection string (see .env.example)
+npx prisma db push        # sync the schema
 npm run seed              # loads the sample data
 npm run dev               # http://localhost:3000
 ```
@@ -53,7 +54,9 @@ Seeded via `prisma/seed.ts`: 5 niches, 5 client businesses (including **Better M
 
 ## Stack
 
-Next.js (App Router) · Prisma + SQLite · Tailwind CSS · Anthropic API · Bunny.net Stream
+Next.js (App Router) · Prisma + PostgreSQL · Tailwind CSS · Anthropic API · Bunny.net Stream
+
+**Deploying to Vercel:** import the repo, add `DATABASE_URL` (a hosted Postgres, e.g. Vercel Postgres or Neon) plus any optional keys from `.env.example`, then run `npx prisma db push` and `npm run seed` once against that database from your machine.
 
 ## Auth
 
