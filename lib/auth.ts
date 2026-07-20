@@ -20,10 +20,13 @@ export function newRawToken() {
   return randomBytes(32).toString("base64url");
 }
 
-// Dev login (pick-a-user, no email) is on ONLY while no email provider is
-// configured. Configure RESEND_API_KEY before real clients touch this.
+// Dev login (pick-a-user, no email) is for local demos only. It turns off
+// automatically the moment an email provider is configured — and it NEVER
+// runs on a hosted deploy (Vercel) unless AUTH_DEV_MODE=1 is set explicitly.
 export function authDevMode() {
-  return !process.env.RESEND_API_KEY;
+  if (process.env.AUTH_DEV_MODE === "1") return true;
+  if (process.env.RESEND_API_KEY) return false;
+  return !process.env.VERCEL;
 }
 
 export async function createSession(userId: string) {
