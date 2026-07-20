@@ -154,6 +154,17 @@ export async function toggleItemComplete(formData: FormData) {
   revalidateAll();
 }
 
+// --- Leads ---
+
+export async function setLeadStatus(formData: FormData) {
+  const user = await currentUser();
+  if (user.role !== "ADMIN") redirect("/portal");
+  const status = String(formData.get("status"));
+  if (!["NEW", "CONTACTED", "CONVERTED", "PASSED"].includes(status)) return;
+  await db.lead.update({ data: { status }, where: { id: String(formData.get("leadId")) } });
+  revalidatePath("/admin/leads");
+}
+
 // --- Notifications ---
 
 export async function markNotificationsRead() {

@@ -33,6 +33,7 @@ node scripts/smoke.mjs   # starts prod server, checks public routes are 200 and 
 - **Course** = premade + resellable. `Course → Module → Lesson`. Self-paced with `durationWeeks` (1/2/4/8). Lessons are shared across clients — never put per-client state on a Lesson.
 - **Project** = tailored collaboration with ONE business. `Project → ProjectSection → ProjectItem` (same item `type` vocabulary as lessons — see `ITEM_TYPES` in `lib/meta.ts`), plus `Task` (two-way: `assignedTo` ADMIN|CLIENT, lifecycle OPEN → SUBMITTED → APPROVED / CHANGES_REQUESTED) and `Message` (the thread). Per-client state (e.g. `completedAt`) is fine on ProjectItem because a project has exactly one client.
 - **Business** belongs to a Client and doubles as the public portfolio entry (`isPublished`).
+- **Home page** (`app/page.tsx` + `components/FilmHero.tsx`) is a scroll-film: one continuous SVG line scrubbed by scroll (Lenis + manual rAF playhead, no ScrollTrigger). It implements the dev contract — `/?jump=<scrollY>` lands pre-settled and `window.__ready` gates screenshots. The page is locked to the dark theme via a `data-theme="dark"` wrapper. Public intake: `/start` → `POST /api/leads` (honeypot-protected) → Lead row + admin notification → `/admin/leads`.
 - Mutations live in `lib/actions.ts` (server actions). Any action that changes project state should send notifications via `lib/notify.ts` → `notify()` (in-app row + best-effort web push).
 
 ## Design system

@@ -98,6 +98,22 @@ model Module {
 // Lesson types cover every section shape you described:
 // OVERVIEW | LESSON | TUTORIAL | SCENARIO | REAL_WORLD | BRAINSTORM |
 // ASSIGNMENT | KNOWLEDGE_CHECK | CONCLUSION | BOOK_CALL
+// ---------- Leads (the "Start your Messy Launch" intake) ----------
+
+model Lead {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  businessName String
+  description  String? // what they do / the idea
+  stage        String // IDEA | LAUNCHED_QUIET | HAS_CLIENTS
+  messy        String? // comma-separated: TECH, MARKETING, CONNECTING, COMMUNITY, PROFIT
+  goal         String? // what a win looks like in 90 days
+  status       String   @default("NEW") // NEW | CONTACTED | CONVERTED | PASSED
+  createdAt    DateTime @default(now())
+}
+
 // ---------- Auth ----------
 // Sessions are opaque random tokens stored hashed; the raw token lives in an
 // httpOnly cookie. Magic-link login tokens are single-use and short-lived.

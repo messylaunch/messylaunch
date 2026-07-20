@@ -28,6 +28,7 @@ async function main() {
 
   // public pages → 200; protected areas must REDIRECT logged-out visitors
   const routes = [
+    ["/start", 200],
     ["/", 200],
     ["/niches", 200],
     ["/niches/coatings-trades", 200],
