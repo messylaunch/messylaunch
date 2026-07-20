@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import type { Outline } from "@/lib/ai";
 
@@ -15,6 +16,8 @@ async function uniqueSlug(base: string, exists: (slug: string) => Promise<boolea
 
 // Turns an approved AI outline into a draft course, or a project on a business.
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return NextResponse.json({ error: "admin only" }, { status: 403 });
   try {
     const { outline, businessId } = (await req.json()) as { outline: Outline; businessId?: string };
 

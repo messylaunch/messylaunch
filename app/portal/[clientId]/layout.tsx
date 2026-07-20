@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { requireClientAccess } from "@/lib/auth";
+import { logout } from "@/lib/auth-actions";
 import { Rocket, Wordmark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/Theme";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -12,7 +13,7 @@ export default async function PortalLayout({
   params: Promise<{ clientId: string }>;
 }) {
   const { clientId } = await params;
-  const client = await db.client.findUnique({ where: { id: clientId }, include: { user: true } });
+  const viewer = await requireClientAccess(clientId);
 
   return (
     <>
@@ -26,11 +27,16 @@ export default async function PortalLayout({
           </Link>
           <span className="chip hidden font-mono uppercase tracking-[0.2em] sm:inline-flex">Client Portal</span>
           <div className="ml-auto flex items-center gap-3">
-            <Link href="/portal" className="text-sm text-sub transition hover:text-ink">
-              Switch client
-            </Link>
-            {client && <NotificationBell userId={client.user.id} />}
+            {viewer.role === "ADMIN" && (
+              <Link href="/portal" className="text-sm text-sub transition hover:text-ink">
+                Switch client
+              </Link>
+            )}
+            <NotificationBell />
             <ThemeToggle />
+            <form action={logout}>
+              <button className="text-sm text-faint transition hover:text-err">Log out</button>
+            </form>
           </div>
         </div>
       </header>

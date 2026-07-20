@@ -21,7 +21,7 @@ function timeAgo(iso: string) {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
-export function NotificationBell({ userId, align = "right" }: { userId: string; align?: "left" | "right" }) {
+export function NotificationBell({ align = "right" }: { align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [unread, setUnread] = useState(0);
@@ -30,12 +30,12 @@ export function NotificationBell({ userId, align = "right" }: { userId: string; 
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`/api/notifications?userId=${userId}`);
+      const res = await fetch("/api/notifications");
       const data = await res.json();
       setItems(data.items ?? []);
       setUnread(data.unread ?? 0);
     } catch {}
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     // first fetch on a timeout so no state is set synchronously inside the effect
@@ -71,9 +71,7 @@ export function NotificationBell({ userId, align = "right" }: { userId: string; 
     const next = !open;
     setOpen(next);
     if (next && unread > 0) {
-      const fd = new FormData();
-      fd.set("userId", userId);
-      await markNotificationsRead(fd);
+      await markNotificationsRead();
       setUnread(0);
     }
   }
@@ -89,7 +87,7 @@ export function NotificationBell({ userId, align = "right" }: { userId: string; 
       await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, subscription: sub.toJSON() }),
+        body: JSON.stringify({ subscription: sub.toJSON() }),
       });
       setPushState("on");
     } catch {}

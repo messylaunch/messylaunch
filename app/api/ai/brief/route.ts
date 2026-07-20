@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@/lib/db";
 import { fmtDate } from "@/lib/meta";
@@ -7,6 +8,8 @@ import { fmtDate } from "@/lib/meta";
 // can pick the project up cold. Uses the Anthropic API when configured;
 // otherwise builds a deterministic brief from the same data.
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return NextResponse.json({ error: "admin only" }, { status: 403 });
   const { slug } = await req.json();
   const project = await db.project.findUnique({
     where: { slug },

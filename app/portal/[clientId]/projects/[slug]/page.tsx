@@ -6,6 +6,7 @@ import { Curriculum } from "@/components/Curriculum";
 import { TaskCard } from "@/components/TaskCard";
 import { Thread } from "@/components/Thread";
 import { ProjectPulse } from "@/components/ProjectPulse";
+import { requireUser } from "@/lib/auth";
 import { fmtDate } from "@/lib/meta";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,9 @@ export default async function PortalProject({
       messages: { orderBy: { createdAt: "asc" }, include: { author: true } },
     },
   });
-  // only let this client view their own project
+  // only this client's own projects render here (layout enforces who can be clientId)
   if (!project || project.business.clientId !== clientId) notFound();
-  const viewer = project.business.client.user;
+  const viewer = await requireUser(); // the session user: the client, or the admin viewing as them
 
   const yourTasks = project.tasks.filter((t) => t.assignedTo === "CLIENT");
   const michaelsTasks = project.tasks.filter((t) => t.assignedTo === "ADMIN");

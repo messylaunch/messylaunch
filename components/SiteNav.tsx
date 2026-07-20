@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Rocket, Wordmark } from "./Logo";
 import { ThemeToggle } from "./Theme";
+import { getSessionUser, homeFor } from "@/lib/auth";
 
-export function SiteNav() {
+export async function SiteNav() {
+  const user = await getSessionUser();
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-paper/80 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3.5">
@@ -16,7 +18,6 @@ export function SiteNav() {
           {[
             { href: "/niches", label: "Niches" },
             { href: "/work", label: "Launches" },
-            { href: "/portal", label: "Client Portal" },
           ].map((l) => (
             <Link
               key={l.href}
@@ -26,9 +27,21 @@ export function SiteNav() {
               {l.label}
             </Link>
           ))}
-          <Link href="/admin" className="btn btn-primary ml-2 !px-4 !py-2 text-xs uppercase tracking-wider">
-            Mission Control
-          </Link>
+          {!user && (
+            <Link href="/login" className="rounded-lg px-3 py-2 text-sub transition hover:bg-card2 hover:text-ink">
+              Log in
+            </Link>
+          )}
+          {user?.role === "CLIENT" && (
+            <Link href={homeFor(user)} className="btn btn-primary ml-2 !px-4 !py-2 text-xs uppercase tracking-wider">
+              My Portal
+            </Link>
+          )}
+          {user?.role === "ADMIN" && (
+            <Link href="/admin" className="btn btn-primary ml-2 !px-4 !py-2 text-xs uppercase tracking-wider">
+              Mission Control
+            </Link>
+          )}
           <ThemeToggle className="ml-2" />
         </div>
       </nav>

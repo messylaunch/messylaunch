@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
+import { logout } from "@/lib/auth-actions";
 import { AdminNav } from "@/components/AdminNav";
 import { Rocket, Wordmark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/Theme";
 import { NotificationBell } from "@/components/NotificationBell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const admin = await db.user.findFirst({ where: { role: "ADMIN" } });
+  await requireAdmin();
 
   return (
     <div className="flex min-h-screen">
@@ -18,7 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </span>
             <Wordmark className="text-lg" />
           </Link>
-          {admin && <NotificationBell userId={admin.id} align="left" />}
+          <NotificationBell align="left" />
         </div>
         <p className="mb-6 mt-4 font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">Mission Control</p>
         <AdminNav />
@@ -30,6 +31,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="space-y-1.5 text-xs text-faint">
             <Link href="/portal" className="block transition hover:text-accent">→ View as client</Link>
             <Link href="/" className="block transition hover:text-accent">→ Public site</Link>
+            <form action={logout}>
+              <button className="transition hover:text-err">→ Log out</button>
+            </form>
           </div>
         </div>
       </aside>

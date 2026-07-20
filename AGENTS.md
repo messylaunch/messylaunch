@@ -14,7 +14,7 @@ Public marketing site + Mission Control (admin) + Client Portal.
 - **Next.js 16** App Router, TypeScript, React 19. `params`/`searchParams` are **Promises** — always `await` them.
 - **Prisma 6 + SQLite** (`prisma/dev.db`, gitignored). Schema: `prisma/schema.prisma`. No migrations yet — schema changes go through `npx prisma db push`, then update `prisma/seed.ts`.
 - **Tailwind 4** (CSS-first config in `app/globals.css`, no tailwind.config file).
-- **No auth yet.** `/admin` is open; `/portal` uses a demo client picker. Treat every new route as if auth will be added later: portal queries must always filter by `clientId` ownership (see `app/portal/[clientId]/projects/[slug]/page.tsx`).
+- **Auth**: session cookies (opaque tokens, hashed in `Session`) + magic-link login (`lib/auth.ts`, `lib/auth-actions.ts`). Guards: `requireAdmin()` / `requireClientAccess(clientId)` in layouts AND in every server action/API — identity always comes from the session, never from form/query data. While `RESEND_API_KEY` is unset, `/login` shows a dev quick-login picker (`authDevMode()`); setting the key turns it off.
 - Optional integrations, all env-gated with graceful fallbacks: Anthropic API (`lib/ai.ts`), Bunny.net Stream (`lib/bunny.ts`), Web Push (`lib/notify.ts`).
 
 ## Commands
@@ -25,7 +25,7 @@ npm run seed         # reset + load sample data (destructive to local data)
 npm run dev          # dev server on :3000
 npm run build        # production build — MUST pass before any commit
 npm run lint         # eslint — must be clean
-node scripts/smoke.mjs   # starts prod server, checks every route returns 200
+node scripts/smoke.mjs   # starts prod server, checks public routes are 200 and auth walls redirect
 ```
 
 ## Domain model (the part that's easy to get wrong)
@@ -43,12 +43,12 @@ Composed primitives: `.card`, `.card-hover`, `.btn`, `.btn-primary`, `.btn-ghost
 
 ## Verification bar
 
-A change is done when: `npm run lint` clean, `npm run build` green, `node scripts/smoke.mjs` all-200, and — for UI work — you've looked at a screenshot in BOTH themes (Playwright is preinstalled; see `.claude/skills/ui-review`).
+A change is done when: `npm run lint` clean, `npm run build` green, `node scripts/smoke.mjs` all green, and — for UI work — you've looked at a screenshot in BOTH themes (Playwright is preinstalled; see `.claude/skills/ui-review`). For anything touching auth or portal queries, also prove the boundary: log in as a client in a browser and confirm they cannot reach `/admin` or another client's portal.
 
 ## Known debt (don't "discover" these again)
 
-1. No authentication — the #1 blocker before real clients use this.
-2. SQLite won't survive serverless deploys (Vercel) — needs a hosted DB (e.g. Postgres + Prisma) at deploy time.
-3. No tests — smoke script only.
-4. Course lessons have no per-client completion (needs a join table keyed on enrollment).
-5. Bunny upload is API-only; no upload UI in admin yet.
+1. SQLite won't survive serverless deploys (Vercel) — needs a hosted DB (e.g. Postgres + Prisma) at deploy time.
+2. No tests beyond the smoke script (it does assert auth walls + anonymous API rejections).
+3. Course lessons have no per-client completion (needs a join table keyed on enrollment).
+4. Bunny upload is API-only; no upload UI in admin yet.
+5. Login emails need `RESEND_API_KEY` configured before production — until then dev quick-login is active.

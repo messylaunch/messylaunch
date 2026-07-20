@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSessionUser } from "@/lib/auth";
 
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
-  if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 });
+// The signed-in user's notifications — identity comes from the session cookie.
+export async function GET() {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "not logged in" }, { status: 401 });
   const [items, unread] = await Promise.all([
-    db.notification.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 20 }),
-    db.notification.count({ where: { userId, readAt: null } }),
+    db.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
+    db.notification.count({ where: { userId: user.id, readAt: null } }),
   ]);
   return NextResponse.json({ items, unread });
 }

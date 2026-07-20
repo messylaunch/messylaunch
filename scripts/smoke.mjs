@@ -26,45 +26,52 @@ async function waitForServer(tries = 40) {
 async function main() {
   await waitForServer();
 
-  // discover seeded dynamic segments from the live app
-  const portalHtml = await (await fetch(`${BASE}/portal`)).text();
-  const clientId = portalHtml.match(/\/portal\/([a-z0-9]+)/)?.[1];
-
+  // public pages → 200; protected areas must REDIRECT logged-out visitors
   const routes = [
-    "/", "/niches", "/niches/coatings-trades", "/work", "/portal",
-    "/admin", "/admin/courses", "/admin/courses/messy-launch-framework",
-    "/admin/projects", "/admin/projects/better-man-website-build",
-    "/admin/clients", "/admin/ai",
-    "/manifest.webmanifest", "/sw.js", "/offline.html",
-    "/definitely-not-a-page", // expect 404
+    ["/", 200],
+    ["/niches", 200],
+    ["/niches/coatings-trades", 200],
+    ["/work", 200],
+    ["/login", 200],
+    ["/manifest.webmanifest", 200],
+    ["/sw.js", 200],
+    ["/offline.html", 200],
+    ["/definitely-not-a-page", 404],
+    // auth walls (307 = redirected to /login)
+    ["/portal", 307],
+    ["/admin", 307],
+    ["/admin/courses", 307],
+    ["/admin/projects", 307],
+    ["/admin/projects/better-man-website-build", 307],
+    ["/admin/clients", 307],
+    ["/admin/ai", 307],
   ];
-  if (clientId) {
-    routes.push(`/portal/${clientId}`, `/portal/${clientId}/projects/better-man-website-build`);
-  } else {
-    console.warn("⚠ could not discover a client id from /portal — is the db seeded?");
-  }
 
   let failed = 0;
-  for (const route of routes) {
-    const expect = route === "/definitely-not-a-page" ? 404 : 200;
+  for (const [route, expect] of routes) {
     let status = "ERR";
     try {
-      status = (await fetch(`${BASE}${route}`)).status;
+      status = (await fetch(`${BASE}${route}`, { redirect: "manual" })).status;
     } catch {}
     const ok = status === expect;
     if (!ok) failed++;
     console.log(`${ok ? "✓" : "✗"} ${route} → ${status}${ok ? "" : ` (expected ${expect})`}`);
   }
 
-  // API smoke: AI generate fallback shape
+  // API smoke: AI generate must refuse anonymous callers
   const gen = await fetch(`${BASE}/api/ai/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ kind: "COURSE", prompt: "smoke test", useExisting: false }),
   });
-  const genOk = gen.status === 200 && (await gen.json()).outline?.sections?.length > 0;
+  const genOk = gen.status === 403;
   if (!genOk) failed++;
-  console.log(`${genOk ? "✓" : "✗"} POST /api/ai/generate → ${gen.status}`);
+  console.log(`${genOk ? "✓" : "✗"} POST /api/ai/generate (anon) → ${gen.status} (expected 403)`);
+
+  const notif = await fetch(`${BASE}/api/notifications`);
+  const notifOk = notif.status === 401;
+  if (!notifOk) failed++;
+  console.log(`${notifOk ? "✓" : "✗"} GET /api/notifications (anon) → ${notif.status} (expected 401)`);
 
   kill();
   if (failed) {

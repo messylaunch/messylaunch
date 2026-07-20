@@ -1,21 +1,27 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { getSessionUser, homeFor } from "@/lib/auth";
 import { Avatar } from "@/components/Avatar";
 import { SiteNav, SiteFooter } from "@/components/SiteNav";
 
 export const dynamic = "force-dynamic";
 
-// Demo login screen: pick which client to view the portal as.
-// (Real authentication comes later — this makes every client's view browsable now.)
+// Clients land straight in their own portal. Admins get this picker to
+// "view as" any client. Logged-out visitors go to login.
 export default async function PortalPicker() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+  if (user.role !== "ADMIN") redirect(homeFor(user));
+
   const clients = await db.client.findMany({ include: { user: true, businesses: true } });
 
   return (
     <>
       <SiteNav />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16 text-center">
-        <h1 className="font-display text-3xl font-black text-ink">Client Portal</h1>
-        <p className="mt-2 text-sub">Demo mode — pick a client to view their portal. (Login comes later.)</p>
+        <h1 className="font-display text-3xl font-black text-ink">View as client</h1>
+        <p className="mt-2 text-sub">Open any client&apos;s portal to see exactly what they see.</p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {clients.map((c) => (
             <Link

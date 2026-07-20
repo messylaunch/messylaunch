@@ -55,4 +55,8 @@ Seeded via `prisma/seed.ts`: 5 niches, 5 client businesses (including **Better M
 
 Next.js (App Router) · Prisma + SQLite · Tailwind CSS · Anthropic API · Bunny.net Stream
 
-> Auth is not wired up yet — `/portal` uses a demo client picker. That's the next brick to lay before real clients touch it.
+## Auth
+
+Passwordless magic-link login (`/login`). Sessions are httpOnly cookies backed by hashed tokens; links are single-use and expire in 15 minutes. Clients only see their own portal; Mission Control is admin-only; every server action and API authorizes against the session.
+
+**Dev mode:** while `RESEND_API_KEY` is unset, `/login` shows a one-click user picker (and prints magic links on screen) so you can demo without email. **Set `RESEND_API_KEY` + `AUTH_EMAIL_FROM` + `APP_URL` before real clients use the app** — that switches login to real emails automatically.

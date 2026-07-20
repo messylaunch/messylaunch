@@ -98,6 +98,29 @@ model Module {
 // Lesson types cover every section shape you described:
 // OVERVIEW | LESSON | TUTORIAL | SCENARIO | REAL_WORLD | BRAINSTORM |
 // ASSIGNMENT | KNOWLEDGE_CHECK | CONCLUSION | BOOK_CALL
+// ---------- Auth ----------
+// Sessions are opaque random tokens stored hashed; the raw token lives in an
+// httpOnly cookie. Magic-link login tokens are single-use and short-lived.
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
 // In-app notification feed (also mirrored to web push when configured)
 model Notification {
   id        String    @id @default(cuid())

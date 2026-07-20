@@ -48,7 +48,6 @@ export function Thread({
       </div>
       <form action={postMessage} className="flex gap-2">
         <input type="hidden" name="projectId" value={projectId} />
-        <input type="hidden" name="authorId" value={viewerId} />
         <input
           name="body"
           required

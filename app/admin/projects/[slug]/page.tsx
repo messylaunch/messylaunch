@@ -9,25 +9,24 @@ import { ProjectPulse } from "@/components/ProjectPulse";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { BriefButton } from "@/components/BriefButton";
 import { createTask } from "@/lib/actions";
+import { requireAdmin } from "@/lib/auth";
 import { PROJECT_STATUS, fmtDate } from "@/lib/meta";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [project, admin] = await Promise.all([
-    db.project.findUnique({
-      where: { slug },
-      include: {
-        business: { include: { client: { include: { user: true } } } },
-        sections: { orderBy: { order: "asc" }, include: { items: { orderBy: { order: "asc" } } } },
-        tasks: { orderBy: [{ status: "asc" }, { dueDate: "asc" }] },
-        messages: { orderBy: { createdAt: "asc" }, include: { author: true } },
-      },
-    }),
-    db.user.findFirst({ where: { role: "ADMIN" } }),
-  ]);
-  if (!project || !admin) notFound();
+  const admin = await requireAdmin();
+  const project = await db.project.findUnique({
+    where: { slug },
+    include: {
+      business: { include: { client: { include: { user: true } } } },
+      sections: { orderBy: { order: "asc" }, include: { items: { orderBy: { order: "asc" } } } },
+      tasks: { orderBy: [{ status: "asc" }, { dueDate: "asc" }] },
+      messages: { orderBy: { createdAt: "asc" }, include: { author: true } },
+    },
+  });
+  if (!project) notFound();
   const status = PROJECT_STATUS[project.status] ?? PROJECT_STATUS.ACTIVE;
   const clientTasks = project.tasks.filter((t) => t.assignedTo === "CLIENT");
   const adminTasks = project.tasks.filter((t) => t.assignedTo === "ADMIN");
