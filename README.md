@@ -63,3 +63,5 @@ Next.js (App Router) · Prisma + PostgreSQL · Tailwind CSS · Anthropic API · 
 Passwordless magic-link login (`/login`). Sessions are httpOnly cookies backed by hashed tokens; links are single-use and expire in 15 minutes. Clients only see their own portal; Mission Control is admin-only; every server action and API authorizes against the session.
 
 **Dev mode:** while `RESEND_API_KEY` is unset, `/login` shows a one-click user picker (and prints magic links on screen) so you can demo without email. **Set `RESEND_API_KEY` + `AUTH_EMAIL_FROM` + `APP_URL` before real clients use the app** — that switches login to real emails automatically.
+
+<!-- deploy: 20260722T054134 -->
