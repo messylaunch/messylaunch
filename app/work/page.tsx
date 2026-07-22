@@ -6,10 +6,9 @@ import { SiteNav, SiteFooter } from "@/components/SiteNav";
 export const dynamic = "force-dynamic";
 
 export default async function WorkPage() {
-  const businesses = await db.business.findMany({
-    where: { isPublished: true },
-    include: { niche: true, client: { include: { user: true } } },
-  });
+  const businesses = await db.business
+    .findMany({ where: { isPublished: true }, include: { niche: true, client: { include: { user: true } } } })
+    .catch(() => []);
 
   return (
     <>

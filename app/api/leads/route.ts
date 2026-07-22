@@ -20,20 +20,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid stage" }, { status: 400 });
   }
 
-  const lead = await db.lead.create({
-    data: {
+  let lead;
+  try {
+    lead = await db.lead.create({
+      data: {
       name,
       email,
       phone: String(data.phone ?? "").trim() || null,
       businessName,
       description: String(data.description ?? "").trim() || null,
       stage,
-      messy: Array.isArray(data.messy) ? data.messy.slice(0, 5).join(",") : null,
-      goal: String(data.goal ?? "").trim() || null,
-    },
-  });
+        messy: Array.isArray(data.messy) ? data.messy.slice(0, 5).join(",") : null,
+        goal: String(data.goal ?? "").trim() || null,
+      },
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "Our intake is briefly down — email michael.quinn0831@gmail.com and we'll get you started directly." },
+      { status: 503 }
+    );
+  }
 
-  const admins = await db.user.findMany({ where: { role: "ADMIN" } });
+  const admins = await db.user.findMany({ where: { role: "ADMIN" } }).catch(() => []);
   await notify(
     admins.map((a) => a.id),
     {

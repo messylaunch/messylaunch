@@ -8,10 +8,12 @@ export const dynamic = "force-dynamic";
 
 export default async function NichePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const niche = await db.niche.findUnique({
-    where: { slug },
-    include: { businesses: { where: { isPublished: true }, include: { client: { include: { user: true } } } } },
-  });
+  const niche = await db.niche
+    .findUnique({
+      where: { slug },
+      include: { businesses: { where: { isPublished: true }, include: { client: { include: { user: true } } } } },
+    })
+    .catch(() => null);
   if (!niche) notFound();
 
   return (
