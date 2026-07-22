@@ -5,9 +5,9 @@ import { SiteNav, SiteFooter } from "@/components/SiteNav";
 export const dynamic = "force-dynamic";
 
 export default async function NichesPage() {
-  const niches = await db.niche.findMany({
-    include: { businesses: { where: { isPublished: true } } },
-  });
+  const niches = await db.niche
+    .findMany({ include: { businesses: { where: { isPublished: true } } } })
+    .catch(() => []);
 
   return (
     <>

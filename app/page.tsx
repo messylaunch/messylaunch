@@ -31,11 +31,10 @@ const PILLARS = [
 ];
 
 export default async function Home() {
-  const businesses = await db.business.findMany({
-    where: { isPublished: true },
-    include: { niche: true },
-    take: 3,
-  });
+  // the film must load even if the database is down — proof strip just hides
+  const businesses = await db.business
+    .findMany({ where: { isPublished: true }, include: { niche: true }, take: 3 })
+    .catch(() => []);
 
   return (
     // the home page lives in the film's dark world in both themes
