@@ -13,6 +13,13 @@ export const metadata: Metadata = {
   description:
     "MessyLaunch helps business owners turn scattered ideas, unfinished pieces, and missed opportunities into a clear offer, a working customer journey, and a simple system they can actually use to launch, fix, and grow.",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "MessyLaunch — you don\u2019t need everything figured out to start",
+    description:
+      "Turn scattered ideas and missed opportunities into a clear offer, a working customer journey, and a system you can actually use.",
+    images: [{ url: "/art/og.jpg", width: 1200, height: 630 }],
+  },
+  twitter: { card: "summary_large_image", images: ["/art/og.jpg"] },
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Messy Launch" },
   icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
 };
