@@ -9,9 +9,9 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Messy Launch — from idea to launched",
+  title: "MessyLaunch — you don\u2019t need everything figured out to start",
   description:
-    "We help business owners through the messy early stage: get clear on your offer, build your online presence, and launch — while actually understanding what you built.",
+    "MessyLaunch helps business owners turn scattered ideas, unfinished pieces, and missed opportunities into a clear offer, a working customer journey, and a simple system they can actually use to launch, fix, and grow.",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Messy Launch" },
   icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#07080e" },
-    { media: "(prefers-color-scheme: light)", color: "#f7f4ed" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f0e2" },
   ],
 };
 

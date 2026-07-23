@@ -4,29 +4,43 @@ import { db } from "@/lib/db";
 import { FilmHero } from "@/components/FilmHero";
 import { SiteFooter } from "@/components/SiteNav";
 import { Reveal } from "@/components/Reveal";
+import { Splat } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
-const PILLARS = [
+const BACKSTAGE = [
   {
-    emoji: "🔌",
-    title: "Tech",
-    body: "Website, booking, follow-up, automations — set up with you driving, so you're never held hostage by your own stack.",
+    emoji: "🧭",
+    title: "Direction",
+    body: "Who you're becoming, who you're helping, and what you're actually building — so the business stops being a pile of random opportunities.",
   },
   {
-    emoji: "📣",
-    title: "Marketing",
-    body: "Content, campaigns, and a voice that's actually yours — pointed at the people your business exists for.",
+    emoji: "🧱",
+    title: "Foundation",
+    body: "The offer, the price, the proof, and the customer journey. What are we selling, who is it for, and what happens after someone says yes?",
   },
   {
-    emoji: "🤝",
-    title: "Connecting",
-    body: "Leads answered, follow-up that doesn't drop, referrals asked for out loud. The unglamorous stuff that pays.",
+    emoji: "🌱",
+    title: "Cultivation",
+    body: "The people you already know — past customers, referrals, your Dream 100. Relationships worked on purpose, not by accident.",
+  },
+];
+
+const FRONTSTAGE = [
+  {
+    emoji: "🗣️",
+    title: "Define",
+    body: "Positioning and messaging a stranger understands in one sentence. The pitch, the objections, the words your customer actually uses.",
   },
   {
-    emoji: "🏟️",
-    title: "Community",
-    body: "An audience that sticks around between purchases — because a crowd that knows you beats an ad budget.",
+    emoji: "🖥️",
+    title: "Presence",
+    body: "The smallest useful online home — a one-page site, a lead capture, a follow-up sequence. Clear and findable beats everywhere and exhausted.",
+  },
+  {
+    emoji: "📈",
+    title: "Leads",
+    body: "Content, outreach, partnerships, and ads — turned on after the basics work, matched to your customer instead of copied from a guru.",
   },
 ];
 
@@ -37,15 +51,15 @@ export default async function Home() {
     .catch(() => []);
 
   return (
-    // the home page lives in the film's dark world in both themes
-    <div data-theme="dark" className="bg-paper text-ink">
+    // the home page lives in the brand's cream-paper world in both themes
+    <div data-theme="light" className="bg-paper text-ink">
       <FilmHero />
 
       <main className="relative">
         {/* ---- the main offer ---- */}
         <section className="mx-auto max-w-5xl px-6 pb-20 pt-6">
           <Reveal>
-            <div className="card overflow-hidden">
+            <div className="card overflow-hidden border-2 !border-ink/80 shadow-[8px_8px_0_0_var(--accent)]">
               <div className="grid gap-0 md:grid-cols-[1.15fr_0.85fr]">
                 <div className="p-8 sm:p-12">
                   <p className="eyebrow">The offer</p>
@@ -53,20 +67,21 @@ export default async function Home() {
                     Your Messy Launch, <span className="text-accent">done with you.</span>
                   </h2>
                   <p className="mt-5 leading-relaxed text-sub">
-                    We get in the mess with you. Together we build your game plan and work it — the tech, the
-                    marketing, the connections, the community — with profit checkpoints from day one, not after
-                    the burnout. You come out the other side with a launched business <em className="text-ink">and</em> the
-                    hands that know how to fly it.
+                    Most people don&apos;t struggle because they lack ideas or talent — they struggle because
+                    everything is mixed together. The business already exists in your head, your notes, and your
+                    half-built pages. We help you turn it into something{" "}
+                    <em className="text-ink">clear, usable, and capable of growing</em> — and you learn to run it
+                    yourself.
                   </p>
                   <ul className="mt-7 space-y-3 text-sm">
                     {[
-                      "A game plan built around where YOU are — idea, launched, or already earning",
-                      "Tech + marketing built with you at the controls, never behind a curtain",
-                      "Real connection work: follow-up, referrals, and a community that sticks",
-                      "Profit checkpoints early — we make it make money before it's too late",
+                      "A direction and a defined customer — not a pile of maybes",
+                      "An offer built around a result, not a list of tasks",
+                      "A customer journey from “heard about you” to “paid you”",
+                      "A follow-up system so opportunities stop falling through the cracks",
                     ].map((li) => (
                       <li key={li} className="flex gap-3">
-                        <span className="mt-0.5 text-accent">✓</span>
+                        <span className="mt-0.5 font-bold text-accent">✓</span>
                         <span className="text-sub">{li}</span>
                       </li>
                     ))}
@@ -78,17 +93,23 @@ export default async function Home() {
                     <span className="text-xs text-faint">5 questions · a human replies within a day</span>
                   </div>
                 </div>
-                <div className="relative hidden items-center justify-center border-l border-line bg-card2/40 md:flex">
+                <div className="relative hidden items-center justify-center border-l-2 border-ink/80 bg-card2/50 md:flex">
                   <div className="grid-bg absolute inset-0" />
-                  <div className="relative p-10 text-center">
-                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">The whole line</p>
-                    <p className="mt-6 space-y-1 font-mono text-sm leading-8 text-sub">
-                      idea <span className="text-accent">→</span> game plan <span className="text-accent">→</span> tech
-                      <br />
-                      <span className="text-accent">→</span> marketing <span className="text-accent">→</span> community
-                      <br />
-                      <span className="text-accent">→</span> <span className="font-bold text-accent2">profit</span>
-                    </p>
+                  <span className="absolute right-4 top-4 opacity-70">
+                    <Splat size={56} color="var(--blue)" />
+                  </span>
+                  <div className="relative p-10">
+                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">You need</p>
+                    <ul className="mt-5 space-y-2.5 font-display text-lg font-bold leading-snug">
+                      <li>a direction,</li>
+                      <li>a customer,</li>
+                      <li>a problem worth solving,</li>
+                      <li>an offer that makes sense,</li>
+                      <li>a way to say it,</li>
+                      <li>a clear next step,</li>
+                      <li className="text-accent">and a system that keeps you moving.</li>
+                    </ul>
+                    <p className="mt-5 text-sm text-sub">Not everything figured out. Just this.</p>
                   </div>
                 </div>
               </div>
@@ -97,7 +118,7 @@ export default async function Home() {
         </section>
 
         {/* ---- two starting points ---- */}
-        <section className="border-y border-line bg-card/40">
+        <section className="border-y border-line bg-card/50">
           <div className="mx-auto max-w-5xl px-6 py-20">
             <Reveal>
               <p className="eyebrow">Wherever you&apos;re starting</p>
@@ -109,22 +130,22 @@ export default async function Home() {
               <Reveal delay={100}>
                 <div className="card card-hover h-full p-8">
                   <p className="text-3xl">💡</p>
-                  <h3 className="mt-4 font-display text-xl font-bold">Starting from an idea</h3>
+                  <h3 className="mt-4 font-display text-xl font-bold">It&apos;s still an idea</h3>
                   <p className="mt-3 text-sm leading-relaxed text-sub">
-                    You know what you want to build — the mess is everything between here and launched. We map the
-                    whole line first: who it&apos;s for, what the offer is, what gets built, what gets said, and what
-                    week one of selling looks like. Then we walk it together.
+                    You know bits and pieces — the service, maybe a name, a few notes. What&apos;s missing is the
+                    connective tissue: who it&apos;s for, what the offer is, what to say, and what week one of
+                    actually selling looks like. We map the line first, then walk it with you.
                   </p>
                 </div>
               </Reveal>
               <Reveal delay={220}>
                 <div className="card card-hover h-full p-8">
                   <p className="text-3xl">💰</p>
-                  <h3 className="mt-4 font-display text-xl font-bold">Already have clients</h3>
+                  <h3 className="mt-4 font-display text-xl font-bold">You have customers — and chaos</h3>
                   <p className="mt-3 text-sm leading-relaxed text-sub">
-                    Money&apos;s coming in but it&apos;s chaos — every job is custom, follow-up slips, and profit is a
-                    rumor. We untangle the knot you&apos;re already in: systems for the repeat work, community that
-                    feeds referrals, and margin you can actually see. Before it&apos;s too late, not after.
+                    Money&apos;s coming in, but the business is held together by your personal effort. Leads live in
+                    your memory, follow-up slips, every job is custom. We untangle the knot you&apos;re already in —
+                    and build the system so it stops depending on you remembering everything.
                   </p>
                 </div>
               </Reveal>
@@ -132,33 +153,67 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ---- the four pillars ---- */}
+        {/* ---- the framework: backstage before front stage ---- */}
         <section className="mx-auto max-w-5xl px-6 py-20">
           <Reveal>
-            <p className="eyebrow">What we untangle</p>
+            <p className="eyebrow">The framework</p>
             <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Four knots. One line.
+              Backstage before front stage.
             </h2>
+            <p className="mt-3 max-w-2xl text-sub">
+              A business can look polished out front while everything behind the curtain runs on memory and panic.
+              More marketing only magnifies that. So we build in this order:
+            </p>
           </Reveal>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            {PILLARS.map((p, i) => (
-              <Reveal key={p.title} delay={i * 90}>
-                <div className="card card-hover h-full p-7">
-                  <p className="text-2xl">{p.emoji}</p>
-                  <h3 className="mt-3 font-display text-lg font-bold">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-sub">{p.body}</p>
+
+          <div className="mt-10 grid gap-8 lg:grid-cols-2">
+            <Reveal delay={80}>
+              <div>
+                <p className="mb-4 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-blue">
+                  ① Backstage — what makes it work
+                </p>
+                <div className="space-y-4">
+                  {BACKSTAGE.map((f) => (
+                    <div key={f.title} className="card card-hover p-6">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{f.emoji}</span>
+                        <h3 className="font-display text-lg font-bold">{f.title}</h3>
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-sub">{f.body}</p>
+                    </div>
+                  ))}
                 </div>
-              </Reveal>
-            ))}
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div>
+                <p className="mb-4 font-mono text-[0.65rem] uppercase tracking-[0.3em] text-accent">
+                  ② Front stage — what the world sees
+                </p>
+                <div className="space-y-4">
+                  {FRONTSTAGE.map((f) => (
+                    <div key={f.title} className="card card-hover p-6">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{f.emoji}</span>
+                        <h3 className="font-display text-lg font-bold">{f.title}</h3>
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-sub">{f.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
-          <Reveal delay={200}>
-            <div className="mt-6 rounded-2xl border border-accent/25 bg-gradient-to-r from-accent/10 to-transparent p-7">
+
+          <Reveal delay={250}>
+            <div className="relative mt-8 overflow-hidden rounded-2xl border-2 border-ink/80 bg-card p-7 shadow-[6px_6px_0_0_var(--blue)]">
               <p className="font-display text-lg font-bold">
-                📈 And underneath all four: <span className="text-accent">profit.</span>
+                Ads amplify what already exists. <span className="text-accent">So we fix the container first.</span>
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-sub">
-                Profit isn&apos;t a phase-two problem. Every game plan we build has money checkpoints from the first
-                week — so the business funds itself while it grows, instead of running on hope.
+                If the message is unclear, more traffic means more confused people. If follow-up leaks, more leads
+                just leak faster. MessyLaunch doesn&apos;t pour more into a leaking business — we make the container
+                hold, then turn up the volume.
               </p>
             </div>
           </Reveal>
@@ -172,7 +227,7 @@ export default async function Home() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="eyebrow">Proof</p>
-                    <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight">Lines we&apos;ve drawn.</h2>
+                    <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight">Messes we&apos;ve launched.</h2>
                   </div>
                   <Link href="/work" className="text-sm font-semibold text-accent transition hover:brightness-110">
                     All launches →
@@ -202,12 +257,12 @@ export default async function Home() {
         )}
 
         {/* ---- the side quest ---- */}
-        <section className="mx-auto max-w-5xl px-6 pb-20">
+        <section className="mx-auto max-w-5xl px-6 pb-20 pt-4">
           <Reveal>
-            <div className="rounded-2xl border border-line bg-card2/40 p-6 text-sm leading-relaxed text-sub">
-              <span className="font-semibold text-ink">Also in the toolbox:</span> for some niches we build apps and
-              repeatable workflows — systems a business can run again and again, or even resell. It&apos;s not the main
-              thing we do, but if your messy launch needs one, we build it.{" "}
+            <div className="rounded-2xl border border-line bg-card2/50 p-6 text-sm leading-relaxed text-sub">
+              <span className="font-semibold text-ink">Also in the toolbox:</span>{" "}for some niches we build apps and
+              repeatable workflows — systems a business can run again and again, or even resell. It&apos;s not the
+              main thing we do, but if your messy launch needs one, we build it.{" "}
               <Link href="/start" className="text-accent underline">
                 Mention it in your intake.
               </Link>
@@ -215,15 +270,25 @@ export default async function Home() {
           </Reveal>
         </section>
 
-        {/* ---- final CTA ---- */}
+        {/* ---- final CTA: the belief ---- */}
         <section className="relative overflow-hidden border-t border-line">
           <div className="grid-bg absolute inset-0 opacity-60" />
+          <span className="absolute -left-8 top-10 opacity-25">
+            <Splat size={160} />
+          </span>
+          <span className="absolute -right-6 bottom-10 opacity-20">
+            <Splat size={120} color="var(--blue)" />
+          </span>
           <div className="relative mx-auto max-w-3xl px-6 py-24 text-center">
             <Reveal>
               <h2 className="font-display text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-                Still a knot?
+                Start with what you know.
                 <br />
-                <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">Good. That&apos;s where we start.</span>
+                <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">
+                  Build what you need.
+                </span>
+                <br />
+                Learn from what happens.
               </h2>
               <p className="mx-auto mt-5 max-w-xl leading-relaxed text-sub">
                 Five questions about your business. A human reads every word and replies within a day with first

@@ -26,6 +26,7 @@
   --color-err: var(--err);
   --color-info: var(--info);
   --color-pop: var(--pop);
+  --color-blue: var(--blue);
 }
 
 :root,
@@ -46,6 +47,7 @@
   --err: #fb7185;
   --info: #60a5fa;
   --pop: #c084fc;
+  --blue: #6ba3e0;
   --grid-line: rgba(120, 140, 200, 0.07);
   --star-opacity: 1;
   --glow: rgba(255, 122, 26, 0.35);
@@ -53,24 +55,25 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --paper: #f7f4ed;
-  --card: #fffdf8;
-  --card2: #f1ece1;
-  --ink: #191712;
-  --sub: #5d5850;
-  --faint: #97907f;
-  --line: #e2dbcb;
-  --accent: #e05500;
-  --accent2: #f59e0b;
-  --accent-ink: #fff8f0;
+  --paper: #f6f0e2;
+  --card: #fffdf6;
+  --card2: #eee6d3;
+  --ink: #211b12;
+  --sub: #5d5645;
+  --faint: #99907a;
+  --line: #e2d8bf;
+  --accent: #ee7c1b;
+  --accent2: #f9a03f;
+  --accent-ink: #fff8ec;
   --ok: #15803d;
   --warn: #a16207;
   --err: #be123c;
   --info: #1d4ed8;
   --pop: #7e22ce;
-  --grid-line: rgba(90, 70, 20, 0.08);
+  --blue: #2d6fb7;
+  --grid-line: rgba(95, 72, 20, 0.09);
   --star-opacity: 0;
-  --glow: rgba(224, 85, 0, 0.25);
+  --glow: rgba(238, 124, 27, 0.3);
 }
 
 html {

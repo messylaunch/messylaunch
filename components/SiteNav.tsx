@@ -59,7 +59,7 @@ export function SiteFooter() {
             <Wordmark className="text-3xl" />
           </div>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-faint">
-            We don&apos;t wait for perfect. We launch messy, learn fast, and teach you to fly the thing yourself.
+            You don&apos;t need everything figured out to start. You need enough clarity to take the next real step.
           </p>
         </div>
         <div className="flex gap-10 text-sm">
@@ -76,7 +76,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-line py-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.3em] text-faint">
-        Messy Launch · T-minus whenever you&apos;re ready
+        MessyLaunch · start messy · don&apos;t stay messy
       </div>
     </footer>
   );
