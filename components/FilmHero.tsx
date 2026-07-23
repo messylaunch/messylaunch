@@ -1,130 +1,188 @@
 "use client";
 
 /*
- * "One Messy Line" — the scroll film.
+ * "One Messy Line" — the scroll film, Lane B (real footage).
  *
- * The whole hero is one continuous orange marker line on cream paper: a
- * scribbled knot (the idea in your head) that untangles as you scroll and
- * draws, in order: a storefront (THE OFFER), broadcast waves over an audience
- * (THE MESSAGE), a constellation of people (YOUR PEOPLE), a climbing chart
- * (THE SYSTEM) — then pulls taut into the logo rocket's flight path: liftoff,
- * and the page melts into the offer. Brand: logo cream/orange/blue.
+ * The hero is now an actual film: six 5-second Higgsfield clips chained
+ * shot-to-shot (each clip starts from the literal last frame of the previous
+ * one), assembled into one continuous take and pre-extracted to JPEG frames.
+ * Scrolling scrubs the film on a full-viewport canvas — the knot untangles,
+ * draws the storefront, broadcasts the message, connects your people, runs
+ * the system, and the rocket lifts off.
  *
- * Engine: Lenis smooth scroll + a manually computed, lerped playhead (see
- * .claude/skills… scroll-film engine notes). No <video>, no ScrollTrigger —
- * every scrubbed value is driven from one rAF tick for total control.
+ * Engine (see .claude/skills scroll-film notes): canvas + pre-extracted
+ * frames (never <video currentTime> — seek stutter), an ImageBitmap sliding
+ * window so every draw is a GPU blit (drawImage(HTMLImageElement) forces a
+ * synchronous JPEG decode = the frame-by-frame jank), a lerped playhead,
+ * Lenis smooth scroll, DPR capped at 1.5.
  * Dev contract: ?jump=<y> lands pre-settled; window.__ready gates screenshots.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Lenis from "lenis";
-import { Splat, Rocket, Wordmark } from "./Logo";
+import { Rocket, Wordmark } from "./Logo";
 
-// ---- the world ----------------------------------------------------------
-const WORLD_W = 6400;
-const WORLD_H = 800;
-const VIEW_W = 1200;
+const FRAME_COUNT = 361; // from assemble output
+const FRAME_SRC = (i: number) => `/film/f_${String(i + 1).padStart(4, "0")}.jpg`;
+const SEAM = "#cab9b5"; // sampled bottom-strip colour of the final frame
 
-// One continuous line, start to finish.
-const LINE =
-  // the knot — chaotic crossing loops
-  "M 480 470 " +
-  "C 560 300 720 300 680 430 C 650 540 480 520 520 400 " +
-  "C 560 280 760 340 700 470 C 660 560 520 560 560 440 " +
-  "C 590 350 700 380 660 450 " +
-  // untangle, travel right with a calming wobble
-  "C 760 540 880 400 1020 440 C 1120 470 1220 470 1320 500 " +
-  // the storefront (TECH): ground, left wall, awning zigzag, right wall
-  "L 1500 500 L 1500 370 " +
-  "L 1540 410 L 1580 370 L 1620 410 L 1660 370 L 1700 410 L 1740 370 L 1780 410 L 1820 370 " +
-  "L 1820 500 L 1920 500 " +
-  // travel + megaphone tip
-  "C 2050 470 2200 430 2400 440 L 2520 415 L 2520 465 L 2455 440 " +
-  // broadcast waves (MARKETING)
-  "C 2680 320 2820 320 2920 430 " +
-  "C 3020 540 3140 540 3240 430 " +
-  "C 3340 320 3460 320 3560 420 " +
-  // the constellation (CONNECTING → COMMUNITY)
-  "L 3800 380 L 3950 480 L 4100 340 L 4250 470 L 4400 370 L 4550 450 " +
-  // settle to the chart baseline, then climb (PROFIT)
-  "C 4680 510 4760 525 4850 525 " +
-  "L 4950 460 L 5050 495 L 5200 400 L 5310 435 L 5450 330 L 5560 365 L 5750 255 " +
-  // pull taut — the flight path (LIFTOFF)
-  "C 5950 140 6060 40 6150 -120";
-
-// tech-station window detail + community nodes + marketing dots + chart ticks
-const NODES = [
-  [3800, 380], [3950, 480], [4100, 340], [4250, 470], [4400, 370], [4550, 450],
-] as const;
-const DOTS = [
-  [2760, 470], [2870, 300], [3010, 520], [3120, 310], [3260, 500], [3400, 320], [3520, 480],
-] as const;
-const TICKS = [4950, 5050, 5200, 5310, 5450, 5560, 5700] as const;
-
-// beat copy over the film: [in, peak, out] in film progress p
+// beat copy over the film: [in, peak, out] in film progress p.
+// Junctions land at i/6 — each chapter owns one clip.
 const BEATS = [
-  { in: -0.1, peak: 0, out: 0.09, cls: "beat-hero" },
-  { in: 0.13, peak: 0.19, out: 0.27, cls: "beat-1" },
-  { in: 0.31, peak: 0.37, out: 0.45, cls: "beat-2" },
-  { in: 0.49, peak: 0.55, out: 0.63, cls: "beat-3" },
-  { in: 0.66, peak: 0.72, out: 0.80, cls: "beat-4" },
+  { in: -0.1, peak: 0, out: 0.12, cls: "beat-hero" },
+  { in: 0.19, peak: 0.25, out: 0.315, cls: "beat-1" },
+  { in: 0.355, peak: 0.415, out: 0.48, cls: "beat-2" },
+  { in: 0.52, peak: 0.58, out: 0.645, cls: "beat-3" },
+  { in: 0.685, peak: 0.745, out: 0.81, cls: "beat-4" },
   { in: 0.875, peak: 0.93, out: 2, cls: "beat-5" }, // finale never fades
 ];
 
 const CHAPTERS: [number, string][] = [
   [0, "00 · THE MESS"],
-  [0.11, "01 · THE OFFER"],
-  [0.30, "02 · THE MESSAGE"],
-  [0.47, "03 · YOUR PEOPLE"],
-  [0.645, "04 · THE SYSTEM"],
-  [0.85, "05 · LIFTOFF"],
+  [1 / 6, "01 · THE OFFER"],
+  [2 / 6, "02 · THE MESSAGE"],
+  [3 / 6, "03 · YOUR PEOPLE"],
+  [4 / 6, "04 · THE SYSTEM"],
+  [5 / 6, "05 · LIFTOFF"],
 ];
 
 export function FilmHero() {
   const driverRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [loadPct, setLoadPct] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const driver = driverRef.current!;
     const stage = stageRef.current!;
-    const path = stage.querySelector<SVGPathElement>("#mline")!;
-    const world = stage.querySelector<SVGGElement>("#world")!;
-    const tipEl = stage.querySelector<SVGGElement>("#tip")!;
-    const rocketEl = stage.querySelector<SVGGElement>("#rocket")!;
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d")!;
     const flashEl = stage.querySelector<HTMLDivElement>(".film-flash")!;
-    const fadeEl = stage.querySelector<HTMLDivElement>(".film-fade")!;
+    const fadeEl = stage.querySelector<HTMLDivElement>(".film-fade2")!;
+    const grainEl = stage.querySelector<HTMLDivElement>(".film-grain")!;
     const beatEls = BEATS.map((b) => stage.querySelector<HTMLDivElement>(`.${b.cls}`)!);
     const chapterLabel = document.querySelector<HTMLElement>("#chapter-label");
     const chapterBar = document.querySelector<HTMLElement>("#chapter-bar");
-    const litEls = Array.from(stage.querySelectorAll<SVGElement>("[data-lit-x]"));
-
-    const L = path.getTotalLength();
-    path.style.strokeDasharray = `${L}`;
-    path.style.strokeDashoffset = `${L}`;
-
-    // The knot is already drawn at scroll 0 — the film untangles everything after it.
-    // Find where the knot ends (first time the line escapes its x-region for good).
-    let KNOT_LEN = 0;
-    for (let len = 0; len < L; len += 12) {
-      if (path.getPointAtLength(len).x > 980) {
-        KNOT_LEN = len;
-        break;
-      }
-    }
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const jumpParam = new URLSearchParams(location.search).get("jump");
     if (jumpParam !== null) history.scrollRestoration = "manual";
 
-    // Lenis smoothing — skipped for reduced-motion and for the screenshot harness
     let lenis: Lenis | null = null;
     if (!reduce && jumpParam === null) {
       lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
     }
 
-    let current = 0; // lerped playhead
-    let camX = 0, camY = 0;
+    // ---- frame store + concurrency-capped loader --------------------------
+    const images: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
+    let loadedCount = 0;
+    let disposed = false;
+    let ready = false;
+
+    function pump(queue: number[], parallel: number, onDone: () => void) {
+      let inFlight = 0;
+      const next = () => {
+        if (disposed) return;
+        while (inFlight < parallel && queue.length) {
+          const i = queue.shift()!;
+          if (images[i]) continue;
+          inFlight++;
+          const img = new Image();
+          img.onload = img.onerror = () => {
+            inFlight--;
+            if (img.complete && img.naturalWidth > 0) images[i] = img;
+            // if this frame is inside the current decode window, re-scan so it
+            // gets an ImageBitmap and upgrades whatever fallback is on screen
+            if (Math.abs(i - bmpCenter) <= B_AHEAD) bmpCenter = -999;
+            loadedCount++;
+            if (loadedCount % 12 === 0 || loadedCount === FRAME_COUNT)
+              setLoadPct(Math.round((loadedCount / FRAME_COUNT) * 100));
+            if (loadedCount >= FRAME_COUNT) onDone();
+            else next();
+          };
+          img.src = FRAME_SRC(i);
+        }
+      };
+      next();
+    }
+
+    // Load order: frame 0 zone first (hero must paint instantly), then the rest.
+    const order: number[] = [];
+    for (let i = 0; i < Math.min(24, FRAME_COUNT); i++) order.push(i);
+    for (let i = 24; i < FRAME_COUNT; i++) order.push(i);
+
+    function nearestFrame(idx: number): HTMLImageElement | null {
+      if (images[idx]) return images[idx];
+      for (let d = 1; d < FRAME_COUNT; d++) {
+        if (images[idx - d]) return images[idx - d];
+        if (images[idx + d]) return images[idx + d];
+      }
+      return null;
+    }
+
+    // ---- ImageBitmap sliding window (the anti-jank core) ------------------
+    const bitmaps = new Map<number, ImageBitmap>();
+    const decoding = new Set<number>();
+    const B_AHEAD = 18, B_KEEP = 28;
+    let bmpCenter = -999;
+    let displayed = -1;
+
+    function ensureBitmaps(center: number) {
+      if (Math.abs(center - bmpCenter) < 3) return;
+      bmpCenter = center;
+      const lo = Math.max(0, center - B_AHEAD);
+      const hi = Math.min(FRAME_COUNT - 1, center + B_AHEAD);
+      for (let i = lo; i <= hi; i++) {
+        if (bitmaps.has(i) || decoding.has(i) || !images[i]) continue;
+        decoding.add(i);
+        createImageBitmap(images[i]!)
+          .then((b) => {
+            decoding.delete(i);
+            if (disposed || Math.abs(i - bmpCenter) > B_KEEP) { b.close(); return; }
+            bitmaps.set(i, b);
+            if (i === displayed) drawFrame(i, true);
+          })
+          .catch(() => decoding.delete(i));
+      }
+      for (const k of Array.from(bitmaps.keys()))
+        if (k < center - B_KEEP || k > center + B_KEEP) {
+          bitmaps.get(k)!.close();
+          bitmaps.delete(k);
+        }
+    }
+
+    // ---- canvas sizing + cover-fit draw -----------------------------------
+    let cw = 0, ch = 0, dpr = 1;
+    function resize() {
+      dpr = Math.min(devicePixelRatio || 1, 1.5);
+      cw = stage.clientWidth;
+      ch = stage.clientHeight;
+      canvas.width = Math.round(cw * dpr);
+      canvas.height = Math.round(ch * dpr);
+      canvas.style.width = `${cw}px`;
+      canvas.style.height = `${ch}px`;
+      displayed = -1; // force repaint
+    }
+
+    function drawFrame(idx: number, force = false) {
+      if (idx === displayed && !force) return;
+      const exact: ImageBitmap | HTMLImageElement | null = bitmaps.get(idx) ?? images[idx];
+      const src = exact ?? nearestFrame(idx);
+      if (!src) return;
+      const iw = src.width, ih = src.height;
+      const scale = Math.max((cw * dpr) / iw, (ch * dpr) / ih);
+      const dw = iw * scale, dh = ih * scale;
+      ctx.drawImage(src, (cw * dpr - dw) / 2, (ch * dpr - dh) / 2, dw, dh);
+      // a fallback draw leaves `displayed` unset so the tick keeps retrying
+      // until the true frame exists, then the bitmap upgrade repaints it
+      displayed = exact ? idx : -1;
+      (window as unknown as { __frame?: number }).__frame = displayed;
+    }
+
+    // ---- playhead ---------------------------------------------------------
+    let current = 0;
     let raf = 0;
     let settled = false;
 
@@ -143,38 +201,10 @@ export function FilmHero() {
     }
 
     function render(p: number) {
-      // the line draws across the film (knot pre-drawn; small hero hold at the top)
-      const drawP = clamp((p - 0.03) / 0.94, 0, 1);
-      const len = KNOT_LEN + drawP * (L - KNOT_LEN);
-      path.style.strokeDashoffset = `${L - len}`;
+      const frame = Math.round(p * (FRAME_COUNT - 1));
+      ensureBitmaps(frame);
+      drawFrame(frame);
 
-      // camera follows the pen tip with lag
-      const pt = path.getPointAtLength(len);
-      const tx = clamp(pt.x - VIEW_W * 0.45, 0, WORLD_W - VIEW_W);
-      const ty = clamp(pt.y - WORLD_H * 0.52, -150, 60);
-      camX += (tx - camX) * 0.09;
-      camY += (ty - camY) * 0.09;
-      world.setAttribute("transform", `translate(${-camX} ${-camY})`);
-
-      // pen ember → rocket handoff
-      const rocketOn = p > 0.865;
-      tipEl.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
-      tipEl.style.opacity = rocketOn ? "0" : "1";
-      if (rocketOn) {
-        const back = path.getPointAtLength(Math.max(0, len - 24));
-        const ang = (Math.atan2(pt.y - back.y, pt.x - back.x) * 180) / Math.PI + 90;
-        rocketEl.setAttribute("transform", `translate(${pt.x} ${pt.y}) rotate(${ang})`);
-        rocketEl.style.opacity = String(clamp((p - 0.865) / 0.03, 0, 1));
-      } else {
-        rocketEl.style.opacity = "0";
-      }
-
-      // stations light up as the tip passes them
-      for (const el of litEls) {
-        el.classList.toggle("lit", pt.x > Number(el.dataset.litX));
-      }
-
-      // beat overlays
       BEATS.forEach((b, i) => {
         const a = beatAlpha(b, p);
         const el = beatEls[i];
@@ -183,12 +213,13 @@ export function FilmHero() {
         el.style.pointerEvents = a > 0.6 ? "auto" : "none";
       });
 
-      // ignition flash + melt into the content
+      // ignition flash near liftoff + melt into the content
       const flash = p > 0.94 && p < 0.985 ? 1 - Math.abs((p - 0.9625) / 0.0225) : 0;
-      flashEl.style.opacity = String(clamp(flash, 0, 1) * 0.85);
-      fadeEl.style.opacity = String(clamp((p - 0.9) / 0.1, 0, 1));
+      flashEl.style.opacity = String(clamp(flash, 0, 1) * 0.7);
+      const melt = clamp((p - 0.92) / 0.08, 0, 1);
+      fadeEl.style.opacity = String(melt);
+      grainEl.style.opacity = String(0.5 * (1 - melt));
 
-      // chapter readout
       if (chapterLabel && chapterBar) {
         let label = CHAPTERS[0][1];
         for (const [at, name] of CHAPTERS) if (p >= at) label = name;
@@ -216,35 +247,56 @@ export function FilmHero() {
       }
       lastTs = ts;
 
-      if (!settled) {
+      if (!settled && ready) {
         settled = true;
         if (jumpParam !== null) {
           scrollTo(0, +jumpParam || 0);
           current = targetProgress();
-          camX = 0; camY = 0;
-          render(current);
-          // second render so the lagged camera lands exactly
-          camX = 0; camY = 0;
-          const pt = path.getPointAtLength(clamp((current - 0.03) / 0.94, 0, 1) * L);
-          camX = clamp(pt.x - VIEW_W * 0.45, 0, WORLD_W - VIEW_W);
-          camY = clamp(pt.y - WORLD_H * 0.52, -150, 60);
           render(current);
         }
         (window as unknown as { __ready?: boolean }).__ready = true;
       }
       raf = requestAnimationFrame(tick);
     }
+
+    resize();
+    addEventListener("resize", resize);
+
+    // land the jump scroll immediately so targetProgress() (and the boot
+    // gate below) see the real position from the first tick
+    if (jumpParam !== null) scrollTo(0, +jumpParam || 0);
+
+    // Boot: pre-warm the hero zone, then reveal and start ticking.
+    pump(order, 10, () => {});
+    const bootCheck = setInterval(() => {
+      const heroReady = images.slice(0, 12).every(Boolean);
+      const jumpReady =
+        jumpParam === null ||
+        loadedCount >= FRAME_COUNT ||
+        images[Math.round(targetProgress() * (FRAME_COUNT - 1))] !== null;
+      if (heroReady && jumpReady) {
+        clearInterval(bootCheck);
+        ready = true;
+        setLoaded(true);
+      }
+    }, 60);
+
     raf = requestAnimationFrame(tick);
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(raf);
+      clearInterval(bootCheck);
+      removeEventListener("resize", resize);
+      for (const b of bitmaps.values()) b.close();
+      bitmaps.clear();
       lenis?.destroy();
     };
   }, []);
 
   return (
     <>
-      {/* film header — fixed chrome, dark world */}
+      {/* film header — fixed chrome over the cream film world */}
       <header className="fixed inset-x-0 top-0 z-40">
         <div className="flex items-center gap-4 px-5 py-3.5 sm:px-8">
           <Link href="/" className="flex items-center gap-2">
@@ -274,78 +326,24 @@ export function FilmHero() {
       </header>
 
       {/* the film */}
-      <div ref={driverRef} className="relative" style={{ height: "560vh" }}>
+      <div ref={driverRef} className="relative" style={{ height: "900vh" }}>
         <div ref={stageRef} className="sticky top-0 h-screen overflow-hidden bg-paper">
-          <div className="grid-bg absolute inset-0" />
-          {/* stray paint drips on the paper */}
-          {[
-            ["6%", "8%", 26, "var(--accent)"], ["14%", "86%", 18, "var(--blue)"], ["74%", "6%", 20, "var(--accent)"],
-            ["82%", "90%", 30, "var(--blue)"], ["8%", "55%", 14, "var(--accent)"], ["86%", "42%", 16, "var(--blue)"],
-          ].map(([top, left, size, color], i) => (
-            <span key={i} className="absolute opacity-30" style={{ top: top as string, left: left as string }}>
-              <Splat size={size as number} color={color as string} />
-            </span>
-          ))}
+          <canvas ref={canvasRef} className="absolute inset-0" aria-hidden />
 
-          {/* the world */}
-          <svg
-            className="absolute inset-0 h-full w-full"
-            viewBox={`0 0 ${VIEW_W} ${WORLD_H}`}
-            preserveAspectRatio="xMidYMid slice"
-            aria-hidden
+          {/* film grain + vignette — sells the one-shot feel, melts out at the end */}
+          <div className="film-grain pointer-events-none absolute inset-0" style={{ opacity: 0.5 }} />
+
+          {/* loader — real progress, gone once the hero zone is decoded */}
+          <div
+            className={`pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-paper transition-opacity duration-700 ${loaded ? "opacity-0" : "opacity-100"}`}
+            aria-hidden={loaded}
           >
-            <defs>
-              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="var(--accent)" />
-                <stop offset="1" stopColor="var(--accent2)" />
-              </linearGradient>
-              <radialGradient id="emberGrad">
-                <stop offset="0" stopColor="#ffd9a8" />
-                <stop offset="0.4" stopColor="var(--accent2)" />
-                <stop offset="1" stopColor="transparent" />
-              </radialGradient>
-            </defs>
-
-            <g id="world">
-              {/* marketing dots — audience the waves reach */}
-              {DOTS.map(([x, y], i) => (
-                <circle key={i} cx={x} cy={y} r="7" className="film-dot" data-lit-x={x - 60} />
-              ))}
-              {/* community constellation nodes */}
-              {NODES.map(([x, y], i) => (
-                <g key={i} className="film-node" data-lit-x={x - 30}>
-                  <circle cx={x} cy={y} r="22" className="film-node-halo" />
-                  <circle cx={x} cy={y} r="9" className="film-node-core" />
-                </g>
-              ))}
-              {/* chart baseline ticks */}
-              {TICKS.map((x, i) => (
-                <line key={i} x1={x} y1={545} x2={x} y2={560} className="film-tick" data-lit-x={x - 40} />
-              ))}
-              <line x1={4870} y1={552} x2={5760} y2={552} className="film-tick" data-lit-x={4900} />
-
-              {/* THE line */}
-              <path id="mline" d={LINE} fill="none" stroke="url(#lineGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-
-              {/* the ember drawing the line */}
-              <g id="tip" style={{ opacity: 0 }}>
-                <circle r="26" fill="url(#emberGrad)" opacity="0.55" className="film-ember-glow" />
-                <circle r="6" fill="var(--accent2)" stroke="var(--ink)" strokeWidth="2" />
-              </g>
-
-              {/* the rocket the ember becomes — the logo rocket */}
-              <g id="rocket" style={{ opacity: 0 }}>
-                <g transform="translate(-32 -50) scale(0.8)">
-                  <path d="M40 80 C33 86 32 95 36 102 C38 97 39 95 40 94 C41 95 42 97 44 102 C48 95 47 86 40 80 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3" strokeLinejoin="round" className="animate-flame" />
-                  <path d="M25 52 C15 56 11 66 12 76 C19 71 25 69 28 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
-                  <path d="M55 52 C65 56 69 66 68 76 C61 71 55 69 52 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
-                  <path d="M40 4 C51 15 57 31 57 46 C57 60 51 70 40 74 C29 70 23 60 23 46 C23 31 29 15 40 4 Z" fill="var(--card)" stroke="var(--ink)" strokeWidth="4" strokeLinejoin="round" />
-                  <path d="M40 4 C45 9 49 16 51.5 24 L28.5 24 C31 16 35 9 40 4 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
-                  <circle cx="40" cy="38" r="9.5" fill="var(--paper)" stroke="var(--ink)" strokeWidth="4" />
-                </g>
-              </g>
-            </g>
-          </svg>
+            <Rocket size={44} />
+            <div className="h-1 w-44 overflow-hidden rounded-full bg-line">
+              <div className="h-full bg-accent transition-[width] duration-200" style={{ width: `${loadPct}%` }} />
+            </div>
+            <p className="font-mono text-[0.6rem] uppercase tracking-[0.35em] text-faint">loading the film</p>
+          </div>
 
           {/* beats */}
           <div className="beat-hero pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ opacity: 0 }}>
@@ -392,7 +390,10 @@ export function FilmHero() {
 
           {/* ignition flash + melt into content */}
           <div className="film-flash pointer-events-none absolute inset-0 bg-gradient-to-t from-accent2 via-accent/70 to-transparent" style={{ opacity: 0 }} />
-          <div className="film-fade pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-b from-transparent to-paper" style={{ opacity: 0 }} />
+          <div
+            className="film-fade2 pointer-events-none absolute inset-x-0 bottom-0 h-80"
+            style={{ opacity: 0, background: `linear-gradient(to bottom, transparent, ${SEAM} 55%, var(--paper))` }}
+          />
         </div>
       </div>
     </>
