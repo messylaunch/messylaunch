@@ -129,8 +129,7 @@ export default async function Home() {
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               <Reveal delay={100}>
                 <div className="card card-hover h-full overflow-hidden">
-                  <img src="/art/napkin-idea.webp" alt="A napkin with a scribbled idea, coffee, and a pencil" className="h-44 w-full border-b border-line object-cover" />
-                  <div className="p-8 pt-6">
+                  <div className="p-8">
                   <h3 className="font-display text-xl font-bold">💡 It&apos;s still an idea</h3>
                   <p className="mt-3 text-sm leading-relaxed text-sub">
                     You know bits and pieces — the service, maybe a name, a few notes. What&apos;s missing is the
@@ -142,8 +141,7 @@ export default async function Home() {
               </Reveal>
               <Reveal delay={220}>
                 <div className="card card-hover h-full overflow-hidden">
-                  <img src="/art/desk-chaos.webp" alt="A busy desk tangled together by one orange line" className="h-44 w-full border-b border-line object-cover" />
-                  <div className="p-8 pt-6">
+                  <div className="p-8">
                   <h3 className="font-display text-xl font-bold">💰 You have customers — and chaos</h3>
                   <p className="mt-3 text-sm leading-relaxed text-sub">
                     Money&apos;s coming in, but the business is held together by your personal effort. Leads live in
@@ -168,14 +166,6 @@ export default async function Home() {
               A business can look polished out front while everything behind the curtain runs on memory and panic.
               More marketing only magnifies that. So we build in this order:
             </p>
-          </Reveal>
-
-          <Reveal delay={60}>
-            <img
-              src="/art/backstage-frontstage.webp"
-              alt="Backstage systems behind a curtain powering a storefront in the spotlight"
-              className="mt-8 w-full rounded-2xl border-2 border-ink/80 object-cover shadow-[8px_8px_0_0_var(--blue)]"
-            />
           </Reveal>
 
           <div className="mt-10 grid gap-8 lg:grid-cols-2">
