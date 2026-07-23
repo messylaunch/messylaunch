@@ -3,11 +3,12 @@
 /*
  * "One Messy Line" — the scroll film.
  *
- * The whole hero is one continuous SVG path: a scribbled knot (the idea) that
- * untangles as you scroll and draws, in order: a storefront (TECH), broadcast
- * waves over scattered dots (MARKETING), a constellation of people
- * (CONNECTING → COMMUNITY), a climbing chart (PROFIT), and finally pulls taut
- * into a rocket's flight path — liftoff, then the page melts into the offer.
+ * The whole hero is one continuous orange marker line on cream paper: a
+ * scribbled knot (the idea in your head) that untangles as you scroll and
+ * draws, in order: a storefront (THE OFFER), broadcast waves over an audience
+ * (THE MESSAGE), a constellation of people (YOUR PEOPLE), a climbing chart
+ * (THE SYSTEM) — then pulls taut into the logo rocket's flight path: liftoff,
+ * and the page melts into the offer. Brand: logo cream/orange/blue.
  *
  * Engine: Lenis smooth scroll + a manually computed, lerped playhead (see
  * .claude/skills… scroll-film engine notes). No <video>, no ScrollTrigger —
@@ -18,6 +19,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Lenis from "lenis";
+import { Splat, Rocket, Wordmark } from "./Logo";
 
 // ---- the world ----------------------------------------------------------
 const WORLD_W = 6400;
@@ -71,11 +73,11 @@ const BEATS = [
 ];
 
 const CHAPTERS: [number, string][] = [
-  [0, "00 · THE KNOT"],
-  [0.11, "01 · TECH"],
-  [0.30, "02 · MARKETING"],
-  [0.47, "03 · CONNECTING"],
-  [0.645, "04 · PROFIT"],
+  [0, "00 · THE MESS"],
+  [0.11, "01 · THE OFFER"],
+  [0.30, "02 · THE MESSAGE"],
+  [0.47, "03 · YOUR PEOPLE"],
+  [0.645, "04 · THE SYSTEM"],
   [0.85, "05 · LIFTOFF"],
 ];
 
@@ -245,12 +247,13 @@ export function FilmHero() {
       {/* film header — fixed chrome, dark world */}
       <header className="fixed inset-x-0 top-0 z-40">
         <div className="flex items-center gap-4 px-5 py-3.5 sm:px-8">
-          <Link href="/" className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink">
-            <span aria-hidden>🚀</span> Messy<span className="text-accent">Launch</span>
+          <Link href="/" className="flex items-center gap-2">
+            <Rocket size={20} />
+            <Wordmark className="text-lg" />
           </Link>
           <div className="hidden flex-1 items-center justify-center gap-3 md:flex">
             <span id="chapter-label" className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">
-              00 · THE KNOT
+              00 · THE MESS
             </span>
             <span className="h-px w-40 overflow-hidden rounded bg-line">
               <span id="chapter-bar" className="block h-full w-0 bg-accent transition-none" />
@@ -272,17 +275,16 @@ export function FilmHero() {
 
       {/* the film */}
       <div ref={driverRef} className="relative" style={{ height: "560vh" }}>
-        <div ref={stageRef} className="sticky top-0 h-screen overflow-hidden bg-[#050608]">
-          {/* stars */}
+        <div ref={stageRef} className="sticky top-0 h-screen overflow-hidden bg-paper">
+          <div className="grid-bg absolute inset-0" />
+          {/* stray paint drips on the paper */}
           {[
-            ["8%", "12%"], ["22%", "78%"], ["15%", "45%"], ["70%", "88%"], ["78%", "18%"],
-            ["35%", "92%"], ["60%", "6%"], ["85%", "55%"], ["45%", "30%"], ["12%", "65%"],
-          ].map(([top, left], i) => (
-            <span
-              key={i}
-              className="star"
-              style={{ top, left, width: 2, height: 2, "--tw": `${2.4 + (i % 4) * 0.6}s`, "--twd": `${(i % 5) * 0.4}s` } as React.CSSProperties}
-            />
+            ["6%", "8%", 26, "var(--accent)"], ["14%", "86%", 18, "var(--blue)"], ["74%", "6%", 20, "var(--accent)"],
+            ["82%", "90%", 30, "var(--blue)"], ["8%", "55%", 14, "var(--accent)"], ["86%", "42%", 16, "var(--blue)"],
+          ].map(([top, left, size, color], i) => (
+            <span key={i} className="absolute opacity-30" style={{ top: top as string, left: left as string }}>
+              <Splat size={size as number} color={color as string} />
+            </span>
           ))}
 
           {/* the world */}
@@ -328,17 +330,18 @@ export function FilmHero() {
               {/* the ember drawing the line */}
               <g id="tip" style={{ opacity: 0 }}>
                 <circle r="26" fill="url(#emberGrad)" opacity="0.55" className="film-ember-glow" />
-                <circle r="6" fill="#ffe4bf" />
+                <circle r="6" fill="var(--accent2)" stroke="var(--ink)" strokeWidth="2" />
               </g>
 
-              {/* the rocket the ember becomes */}
+              {/* the rocket the ember becomes — the logo rocket */}
               <g id="rocket" style={{ opacity: 0 }}>
-                <g transform="translate(-27 -46) scale(0.68)">
-                  <path d="M40 78 C34 86 36 94 40 99 C44 94 46 86 40 78 Z" fill="var(--accent)" className="animate-flame" />
-                  <path d="M26 52 C16 58 12 70 13 78 C20 72 26 70 30 68 Z" fill="var(--accent)" />
-                  <path d="M54 52 C64 58 68 70 67 78 C60 72 54 70 50 68 Z" fill="var(--accent)" />
-                  <path d="M40 2 C52 14 58 32 58 48 C58 62 52 72 40 76 C28 72 22 62 22 48 C22 32 28 14 40 2 Z" fill="#131725" stroke="#eef0f8" strokeWidth="3.5" strokeLinejoin="round" />
-                  <circle cx="40" cy="36" r="9" fill="#050608" stroke="#eef0f8" strokeWidth="3.5" />
+                <g transform="translate(-32 -50) scale(0.8)">
+                  <path d="M40 80 C33 86 32 95 36 102 C38 97 39 95 40 94 C41 95 42 97 44 102 C48 95 47 86 40 80 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3" strokeLinejoin="round" className="animate-flame" />
+                  <path d="M25 52 C15 56 11 66 12 76 C19 71 25 69 28 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
+                  <path d="M55 52 C65 56 69 66 68 76 C61 71 55 69 52 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
+                  <path d="M40 4 C51 15 57 31 57 46 C57 60 51 70 40 74 C29 70 23 60 23 46 C23 31 29 15 40 4 Z" fill="var(--card)" stroke="var(--ink)" strokeWidth="4" strokeLinejoin="round" />
+                  <path d="M40 4 C45 9 49 16 51.5 24 L28.5 24 C31 16 35 9 40 4 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
+                  <circle cx="40" cy="38" r="9.5" fill="var(--paper)" stroke="var(--ink)" strokeWidth="4" />
                 </g>
               </g>
             </g>
@@ -346,26 +349,27 @@ export function FilmHero() {
 
           {/* beats */}
           <div className="beat-hero pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ opacity: 0 }}>
-            <p className="eyebrow">Messy Launch</p>
+            <p className="eyebrow">MessyLaunch</p>
             <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.03] tracking-tight text-ink sm:text-7xl">
-              Every business
+              You don&apos;t need everything
               <br />
-              starts as a <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">mess.</span>
+              figured out <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">to start.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg text-sub">
-              That tangle is an idea. Scroll — watch what we do with it.
+              You need enough clarity to take the next real step. That tangle? That&apos;s the
+              business in your head. Scroll.
             </p>
             <p className="mt-12 animate-bounce font-mono text-[0.65rem] uppercase tracking-[0.35em] text-faint">▼ scroll</p>
           </div>
 
           {[
-            { cls: "beat-1", n: "01 / Tech", h: "First, we wire it up.", p: "Website, booking, follow-up, automations — built with you at the controls, not locked behind an agency." },
-            { cls: "beat-2", n: "02 / Marketing", h: "Then we make noise that lands.", p: "Content and campaigns that sound like you — reaching the exact people your business exists for." },
-            { cls: "beat-3", n: "03 / Connecting", h: "Strangers become customers. Customers become community.", p: "Follow-up, referrals, and a crowd that shows up for you — the part everyone skips." },
-            { cls: "beat-4", n: "04 / Profit", h: "Profitable before it's too late.", p: "Offers, pricing, and margin — we build the money engine early, not after the burnout." },
+            { cls: "beat-1", n: "01 / The Offer", h: "An offer that makes sense.", p: "Not a list of services — a clear result for a real customer. We package what you already know into something people understand and buy." },
+            { cls: "beat-2", n: "02 / The Message", h: "Say it so people get it.", p: "If you can't explain it in one sentence, a prettier website won't save it. Messaging comes before decoration." },
+            { cls: "beat-3", n: "03 / Your People", h: "Start with who you already know.", p: "Past customers, referrals, your Dream 100 — opportunities stop falling through the cracks when follow-up becomes a system." },
+            { cls: "beat-4", n: "04 / The System", h: "Fix the container. Then pour.", p: "Capture, follow up, book, deliver, ask for the review. More marketing only amplifies what already exists — so we make what exists work." },
           ].map((b) => (
             <div key={b.cls} className={`${b.cls} pointer-events-none absolute inset-0 flex items-center px-6 sm:px-16`} style={{ opacity: 0 }}>
-              <div className="max-w-md rounded-2xl border border-line/60 bg-[#050608]/55 p-6 backdrop-blur-sm sm:p-8">
+              <div className="max-w-md rounded-2xl border-2 border-ink/80 bg-card/85 p-6 shadow-[6px_6px_0_0_var(--accent)] backdrop-blur-sm sm:p-8">
                 <p className="eyebrow">{b.n}</p>
                 <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight text-ink sm:text-4xl">{b.h}</h2>
                 <p className="mt-3 leading-relaxed text-sub">{b.p}</p>
@@ -376,9 +380,9 @@ export function FilmHero() {
           <div className="beat-5 pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ opacity: 0 }}>
             <p className="eyebrow">05 / Liftoff</p>
             <h2 className="mt-4 font-display text-4xl font-extrabold leading-tight text-ink sm:text-6xl">
-              That line is your launch.
+              Launch what&apos;s ready. Fix what&apos;s broken.
               <br />
-              <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">We draw it with you.</span>
+              <span className="bg-gradient-to-r from-accent to-accent2 bg-clip-text text-transparent">Build what&apos;s missing.</span>
             </h2>
             <Link href="/start" className="btn btn-primary pointer-events-auto mt-9 !px-8 !py-4 !text-base">
               Start your Messy Launch 🚀

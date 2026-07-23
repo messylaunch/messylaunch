@@ -1,36 +1,76 @@
-// Hand-drawn Messy Launch rocket. `flame` animates the exhaust.
+// The MessyLaunch brand mark, recreated as SVG from the logo:
+// white rocket with bold ink outlines, blue fins, orange nose + flame,
+// riding an orange paint splat on cream paper.
+
+export function Splat({ size = 120, className = "", color = "var(--accent)" }: { size?: number; className?: string; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" fill={color} className={className} aria-hidden>
+      <path d="M100 30 C118 26 128 40 142 38 C150 37 158 30 164 36 C170 42 162 50 166 58 C170 66 184 64 188 74 C192 84 178 88 176 96 C174 106 188 112 184 122 C180 132 166 126 158 132 C150 138 156 152 146 156 C136 160 130 148 120 150 C110 152 108 168 98 166 C88 164 90 150 82 146 C74 142 64 152 56 146 C48 140 54 130 48 122 C42 114 28 118 24 108 C20 98 34 94 34 84 C34 76 22 70 26 60 C30 50 44 56 52 50 C60 44 56 30 66 26 C76 22 82 34 92 32 Z" />
+      <circle cx="30" cy="42" r="7" />
+      <circle cx="172" cy="28" r="5" />
+      <circle cx="190" cy="140" r="6" />
+      <circle cx="22" cy="150" r="5" />
+      <circle cx="104" cy="8" r="5" />
+      <circle cx="60" cy="184" r="6" />
+      <circle cx="150" cy="180" r="4" />
+      <ellipse cx="12" cy="92" rx="6" ry="4" />
+      <ellipse cx="194" cy="96" rx="5" ry="4" />
+    </svg>
+  );
+}
+
+// Upright rocket in the logo's style; rotate externally when it needs to fly a path.
 export function Rocket({ size = 28, flame = false, className = "" }: { size?: number; flame?: boolean; className?: string }) {
   return (
-    <svg width={size} height={size * 1.25} viewBox="0 0 80 100" fill="none" className={className} aria-hidden>
-      {/* exhaust */}
+    <svg width={size} height={size * 1.3} viewBox="0 0 80 104" fill="none" className={className} aria-hidden>
+      {/* flame */}
       <g className={flame ? "animate-flame" : undefined}>
-        <path d="M40 78 C34 86 36 94 40 99 C44 94 46 86 40 78 Z" fill="var(--accent)" />
-        <path d="M40 78 C37 84 38 90 40 93 C42 90 43 84 40 78 Z" fill="var(--accent2)" />
+        <path
+          d="M40 80 C33 86 32 95 36 102 C38 97 39 95 40 94 C41 95 42 97 44 102 C48 95 47 86 40 80 Z"
+          fill="var(--accent)"
+          stroke="var(--ink)"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
       </g>
       {/* fins */}
-      <path d="M26 52 C16 58 12 70 13 78 C20 72 26 70 30 68 Z" fill="var(--accent)" />
-      <path d="M54 52 C64 58 68 70 67 78 C60 72 54 70 50 68 Z" fill="var(--accent)" />
+      <path d="M25 52 C15 56 11 66 12 76 C19 71 25 69 28 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
+      <path d="M55 52 C65 56 69 66 68 76 C61 71 55 69 52 67 Z" fill="var(--blue)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
       {/* body */}
       <path
-        d="M40 2 C52 14 58 32 58 48 C58 62 52 72 40 76 C28 72 22 62 22 48 C22 32 28 14 40 2 Z"
-        fill="var(--card2)"
+        d="M40 4 C51 15 57 31 57 46 C57 60 51 70 40 74 C29 70 23 60 23 46 C23 31 29 15 40 4 Z"
+        fill="var(--card)"
         stroke="var(--ink)"
-        strokeWidth="3.5"
+        strokeWidth="4"
         strokeLinejoin="round"
       />
+      {/* nose cone */}
+      <path d="M40 4 C45 9 49 16 51.5 24 L28.5 24 C31 16 35 9 40 4 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3.5" strokeLinejoin="round" />
       {/* window */}
-      <circle cx="40" cy="36" r="9" fill="var(--paper)" stroke="var(--ink)" strokeWidth="3.5" />
-      <circle cx="43" cy="33" r="2.5" fill="var(--accent2)" />
-      {/* body seam */}
-      <path d="M27 58 C33 62 47 62 53 58" stroke="var(--ink)" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <circle cx="40" cy="38" r="9.5" fill="var(--paper)" stroke="var(--ink)" strokeWidth="4" />
+      {/* exhaust collar */}
+      <path d="M31 68 L49 68 L47 76 L33 76 Z" fill="var(--accent)" stroke="var(--ink)" strokeWidth="3" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+// The full lockup: rocket on its splat. Used for hero moments and app icons.
+export function LogoMark({ size = 96, className = "" }: { size?: number; className?: string }) {
+  return (
+    <span className={`relative inline-block ${className}`} style={{ width: size, height: size }} aria-hidden>
+      <Splat size={size} className="absolute inset-0" />
+      <span className="absolute inset-0 flex items-center justify-center" style={{ transform: "rotate(30deg)" }}>
+        <Rocket size={size * 0.42} flame />
+      </span>
+    </span>
   );
 }
 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <span className={`font-display font-extrabold tracking-tight ${className}`}>
-      Messy<span className="text-accent">Launch</span>
+      <span className="text-accent">Messy</span>
+      <span className="text-blue">Launch</span>
     </span>
   );
 }

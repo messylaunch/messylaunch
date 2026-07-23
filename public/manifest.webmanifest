@@ -1,13 +1,13 @@
 {
   "name": "Messy Launch",
   "short_name": "MessyLaunch",
-  "description": "Courses, projects, and mission control for the messy stage of business.",
+  "description": "Clarity, systems, and a working launch for the messy stage of business.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#07080e",
-  "theme_color": "#07080e",
+  "background_color": "#f6f0e2",
+  "theme_color": "#f6f0e2",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
