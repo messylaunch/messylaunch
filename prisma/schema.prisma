@@ -66,6 +66,11 @@ model Business {
   services    String? // comma-separated: what Messy Launch did for them
   isPublished Boolean @default(false) // show on the public portfolio?
 
+  // the person/team behind the business — a shoutout, not just the business bio
+  founderName     String?
+  founderPhotoUrl String?
+  founderBio      String?
+
   projects Project[]
 }
 

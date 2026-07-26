@@ -165,6 +165,60 @@ export async function setLeadStatus(formData: FormData) {
   revalidatePath("/admin/leads");
 }
 
+// --- Portfolio (public businesses) ---
+
+function revalidatePortfolio(slug?: string) {
+  revalidatePath("/admin/businesses");
+  revalidatePath("/work");
+  revalidatePath("/niches");
+  revalidatePath("/");
+  if (slug) revalidatePath(`/niches/${slug}`);
+}
+
+export async function togglePublishBusiness(formData: FormData) {
+  const user = await currentUser();
+  if (user.role !== "ADMIN") redirect("/portal");
+  const id = String(formData.get("businessId"));
+  const isPublished = formData.get("isPublished") === "true";
+  const business = await db.business.update({
+    data: { isPublished: !isPublished },
+    where: { id },
+    include: { niche: true },
+  });
+  revalidatePortfolio(business.niche?.slug);
+}
+
+export async function updateBusiness(formData: FormData) {
+  const user = await currentUser();
+  if (user.role !== "ADMIN") redirect("/portal");
+  const id = String(formData.get("businessId"));
+  const str = (name: string) => {
+    const v = formData.get(name);
+    return typeof v === "string" && v.trim() !== "" ? v.trim() : null;
+  };
+  const nicheId = str("nicheId");
+  const business = await db.business.update({
+    where: { id },
+    data: {
+      name: String(formData.get("name") ?? "").trim(),
+      tagline: str("tagline"),
+      logoUrl: str("logoUrl"),
+      location: str("location"),
+      story: str("story"),
+      firstWin: str("firstWin"),
+      currentState: str("currentState"),
+      services: str("services"),
+      founderName: str("founderName"),
+      founderPhotoUrl: str("founderPhotoUrl"),
+      founderBio: str("founderBio"),
+      nicheId,
+    },
+    include: { niche: true },
+  });
+  revalidatePortfolio(business.niche?.slug);
+  redirect("/admin/businesses");
+}
+
 // --- Notifications ---
 
 export async function markNotificationsRead() {

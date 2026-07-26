@@ -65,6 +65,17 @@ export default async function WorkPage() {
                   ))}
                 </div>
               )}
+              {b.founderBio && (
+                <div className="mt-5 flex items-start gap-3 border-t border-line pt-5">
+                  {b.founderPhotoUrl && (
+                    <img src={b.founderPhotoUrl} alt={b.founderName ?? ""} className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                  )}
+                  <div>
+                    {b.founderName && <p className="text-xs font-bold uppercase tracking-wider text-faint">{b.founderName}</p>}
+                    <p className="mt-1 text-sm italic leading-relaxed text-sub">&ldquo;{b.founderBio}&rdquo;</p>
+                  </div>
+                </div>
+              )}
             </article>
           ))}
         </div>

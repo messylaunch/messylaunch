@@ -49,6 +49,17 @@ export default async function Home() {
   const businesses = await db.business
     .findMany({ where: { isPublished: true }, include: { niche: true }, take: 3 })
     .catch(() => []);
+  const niches = await db.niche
+    .findMany({ include: { businesses: { where: { isPublished: true }, select: { id: true } } } })
+    .then((all) => all.filter((n) => n.businesses.length > 0))
+    .catch(() => []);
+  const logos = await db.business
+    .findMany({
+      where: { isPublished: true, logoUrl: { not: null } },
+      select: { id: true, slug: true, name: true, logoUrl: true },
+      take: 8,
+    })
+    .catch(() => []);
 
   return (
     // the home page lives in the brand's cream-paper world in both themes
@@ -220,6 +231,69 @@ export default async function Home() {
             </div>
           </Reveal>
         </section>
+
+        {/* ---- browse by niche ---- */}
+        {niches.length > 0 && (
+          <section className="relative overflow-hidden border-t border-line bg-card/40">
+            <div className="grid-bg absolute inset-0 opacity-40" />
+            <div className="relative mx-auto max-w-5xl px-6 py-20">
+              <Reveal>
+                <p className="eyebrow">Wherever you work</p>
+                <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+                  We go deep on a niche at a time.
+                </h2>
+                <p className="mt-3 max-w-2xl text-sub">
+                  Music, food trucks, coaching, trades — pick the world you already know.
+                </p>
+              </Reveal>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-5">
+                {niches.map((n, i) => (
+                  <Link
+                    key={n.id}
+                    href={`/niches/${n.slug}`}
+                    className="animate-float card card-hover flex items-center gap-2.5 rounded-full !border-2 !border-ink/70 bg-card px-5 py-3 shadow-[4px_4px_0_0_var(--accent)]"
+                    style={{ animationDelay: `${(i % 5) * 0.6}s` }}
+                  >
+                    <span className="text-2xl">{n.emoji}</span>
+                    <span className="font-display font-bold text-ink">{n.name}</span>
+                    <span className="text-xs text-faint">
+                      {n.businesses.length} launch{n.businesses.length === 1 ? "" : "es"}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <Reveal delay={150}>
+                <div className="mt-8 text-center">
+                  <Link href="/niches" className="text-sm font-semibold text-accent transition hover:brightness-110">
+                    See every niche →
+                  </Link>
+                </div>
+              </Reveal>
+
+              {logos.length > 0 && (
+                <Reveal delay={220}>
+                  <div className="mt-16 border-t border-line pt-10 text-center">
+                    <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-faint">
+                      Trusted by businesses we&apos;ve launched
+                    </p>
+                    <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
+                      {logos.map((b) => (
+                        <Link
+                          key={b.id}
+                          href={`/work#${b.slug}`}
+                          title={b.name}
+                          className="opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0"
+                        >
+                          <img src={b.logoUrl!} alt={b.name} className="h-10 w-10 rounded-xl object-cover" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* ---- recent launches ---- */}
         {businesses.length > 0 && (
