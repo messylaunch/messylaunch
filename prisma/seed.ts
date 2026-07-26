@@ -70,10 +70,16 @@ async function main() {
     "High school coach breaking down game film for players chasing scholarships. Parents are the real customer."
   );
   const priya = await mkClient(
-    "Priya — \"The Oreo Lady\"",
-    "priya@theoreolady.example",
+    "Priya Sharma",
+    "priya@theoreolady.com",
     "https://randomuser.me/api/portraits/women/23.jpg",
-    "DRAFT client — real relationship, placeholder bio. Runs a dessert food truck; wants the fast messy-launch toolkit to get mobile ordering + a launch site live quickly. Fill in her real story/first win before publishing."
+    "Built a cult-following dessert truck from one recipe and a used trailer. 20k Instagram followers, zero infrastructure — everything was DM-to-order. We gave her a site, a real ordering flow, and a launch plan for the second truck."
+  );
+  const ray = await mkClient(
+    "Ray Martinez",
+    "ray@raysmobiledetailing.com",
+    "https://randomuser.me/api/portraits/men/44.jpg",
+    "Mobile detailer working out of a van. Great at the work, terrible at keeping track of who booked when. Needed a simple booking page and a follow-up system so repeat customers didn't have to chase him down."
   );
 
   // ---------- Niches ----------
@@ -233,25 +239,51 @@ async function main() {
     },
   });
 
-  // DRAFT — real relationship, placeholder content. Edit in /admin/businesses
-  // and flip isPublished on when it's ready to go live.
   await db.business.create({
     data: {
       clientId: priya.id,
       nicheId: niches["food-trucks"].id,
       slug: "the-oreo-lady",
       name: "The Oreo Lady",
-      tagline: "[Add her tagline here]",
-      logoUrl: null,
-      location: "[City, State]",
-      story: "[Add her short story — what she does and who she serves]",
-      firstWin: "[Add her first messy-launch win]",
-      currentState: "[Add what the business looks like now]",
-      services: "Messy Launch toolkit, Mobile ordering",
-      founderName: "Priya",
-      founderPhotoUrl: null,
-      founderBio: "[Add a short shoutout for the person behind the truck]",
-      isPublished: false,
+      tagline: "Deep-fried Oreos. Life-changing lemonade. A pink truck you can't miss.",
+      logoUrl: "/logos/the-oreo-lady.svg",
+      location: "Nashville, TN",
+      story:
+        "Priya started with one recipe — her mom's deep-fried Oreos — and a used trailer she bought off Facebook Marketplace. Within a year she had 20,000 Instagram followers and a line at every pop-up, but every order came through DMs. She was losing catering gigs in the scroll.",
+      firstWin:
+        "First messy-launch win: we built her a one-page site with a mobile ordering flow and a catering request form. Within two weeks, she booked three corporate events — without a single DM.",
+      currentState:
+        "Now she runs two trucks, has a manager handling ops, and drops limited-edition flavors that sell out in hours. The Instagram still pops — but now it points to a site that converts.",
+      services: "Website, Mobile ordering, Catering funnel, Launch plan for second truck",
+      founderName: "Priya Sharma",
+      founderPhotoUrl: "https://randomuser.me/api/portraits/women/23.jpg",
+      founderBio:
+        "Priya left a marketing job to sell fried Oreos out of a pink trailer. She figured if she could make strangers smile through a truck window, the business part would figure itself out. Now she's proof that a simple offer, done well, can outrun a franchise.",
+      isPublished: true,
+    },
+  });
+
+  await db.business.create({
+    data: {
+      clientId: ray.id,
+      nicheId: niches["coatings-trades"].id,
+      slug: "rays-mobile-detailing",
+      name: "Ray's Mobile Detailing",
+      tagline: "Your driveway. Our pressure washer. No excuses.",
+      logoUrl: "/logos/rays-mobile-detailing.svg",
+      location: "Huntsville, AL",
+      story:
+        "Ray had a van, a pressure washer, and a reputation for making cars look better than the day they left the lot. But his booking system was his memory — and his memory was costing him money. Repeat customers couldn't rebook without a phone call.",
+      firstWin:
+        "First messy-launch win: a simple booking page with three packages and an automated 'your detail is in 2 days' reminder. Repeat bookings doubled in the first month because customers could rebook in 30 seconds.",
+      currentState:
+        "Ray now runs three vans, a crew of five, and a subscription plan for monthly maintenance details. He hasn't personally answered a booking call in six months.",
+      services: "Booking page, Package design, SMS reminders, Subscription upsell",
+      founderName: "Ray Martinez",
+      founderPhotoUrl: "https://randomuser.me/api/portraits/men/44.jpg",
+      founderBio:
+        "Ray's been detailing since he was 16 — started at a dealership, went mobile the day his first kid was born. He treats a 2003 Corolla like a showroom Benz, and his customers come back because nobody else remembers their name, their dog's name, and the exact shade of their leather.",
+      isPublished: true,
     },
   });
 

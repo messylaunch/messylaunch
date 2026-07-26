@@ -11,10 +11,12 @@ export function AiBuilder({
   businesses,
   initialKind,
   aiConfigured,
+  providerLabel,
 }: {
   businesses: BusinessOption[];
   initialKind: "COURSE" | "PROJECT";
   aiConfigured: boolean;
+  providerLabel: string | null;
 }) {
   const router = useRouter();
   const [kind, setKind] = useState<"COURSE" | "PROJECT">(initialKind);
@@ -68,8 +70,13 @@ export function AiBuilder({
     <div className="space-y-6">
       {!aiConfigured && (
         <p className="rounded-xl border border-warn/30 bg-warn/10 px-4 py-3 text-sm text-warn">
-          ⚠ No <code>ANTHROPIC_API_KEY</code> set — the builder will return a sample outline so you can see the flow.
-          Add your key to <code>.env</code> for real generation.
+          ⚠ No AI provider configured — the builder will return a sample outline so you can see the flow.
+          Set <code>ANTHROPIC_API_KEY</code> or <code>DEEPSEEK_API_KEY</code> in your environment for real generation.
+        </p>
+      )}
+      {aiConfigured && providerLabel && (
+        <p className="rounded-xl border border-ok/30 bg-ok/10 px-4 py-3 text-sm text-ok">
+          ✓ Connected to {providerLabel} — outlines will be generated live.
         </p>
       )}
 

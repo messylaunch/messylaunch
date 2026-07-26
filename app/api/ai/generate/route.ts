@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { generateOutline } from "@/lib/ai";
+import { generateOutline, aiConfigured } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "prompt is required" }, { status: 400 });
     }
     const outline = await generateOutline({ kind, prompt, useExisting: Boolean(useExisting) });
-    return NextResponse.json({ outline, live: Boolean(process.env.ANTHROPIC_API_KEY) });
+    return NextResponse.json({ outline, live: aiConfigured() });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: err instanceof Error ? err.message : "generation failed" }, { status: 500 });

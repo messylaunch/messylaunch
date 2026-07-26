@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import Anthropic from "@anthropic-ai/sdk";
+import { aiProvider } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { fmtDate } from "@/lib/meta";
+import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
 // "Brief me on this project" — a handoff summary so a teammate (or future you)
-// can pick the project up cold. Uses the Anthropic API when configured;
+// can pick the project up cold. Uses whichever AI provider is configured;
 // otherwise builds a deterministic brief from the same data.
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
@@ -33,7 +35,10 @@ export async function POST(req: NextRequest) {
     `THREAD:\n${project.messages.map((m) => `- ${m.author.name} (${fmtDate(m.createdAt)}): ${m.body}`).join("\n")}`,
   ].join("\n\n");
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const provider = aiProvider();
+
+  // Deterministic fallback when no AI key is configured
+  if (!provider) {
     const open = project.tasks.filter((t) => t.status === "OPEN" || t.status === "CHANGES_REQUESTED");
     const review = project.tasks.filter((t) => t.status === "SUBMITTED");
     const brief = [
@@ -46,24 +51,51 @@ export async function POST(req: NextRequest) {
       project.messages.length
         ? `**Last word in the thread** (${project.messages.at(-1)!.author.name}): "${project.messages.at(-1)!.body}"`
         : "",
-      "_(Set ANTHROPIC_API_KEY for a fuller written brief.)_",
+      "_(Set ANTHROPIC_API_KEY or DEEPSEEK_API_KEY for a fuller written brief.)_",
     ]
       .filter(Boolean)
       .join("\n\n");
     return NextResponse.json({ brief, live: false });
   }
 
-  const anthropic = new Anthropic();
-  const res = await anthropic.messages.create({
-    model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5",
-    max_tokens: 1200,
-    system:
-      "You write handoff briefs for Messy Launch client projects. A teammate who has never seen this project reads your brief and should be able to take over today. Write in markdown with exactly these sections: 'Where we're at' (2-3 sentences), 'What the client has learned/done so far', 'Blocked or waiting' (who owes what, with dates), 'Decisions already made' (from the thread), and 'Do this next' (max 3 concrete actions). Be specific, use names, keep it under 250 words. No preamble.",
-    messages: [{ role: "user", content: facts }],
-  });
-  const brief = res.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("\n");
-  return NextResponse.json({ brief, live: true });
+  const system =
+    "You write handoff briefs for Messy Launch client projects. A teammate who has never seen this project reads your brief and should be able to take over today. Write in markdown with exactly these sections: 'Where we're at' (2-3 sentences), 'What the client has learned/done so far', 'Blocked or waiting' (who owes what, with dates), 'Decisions already made' (from the thread), and 'Do this next' (max 3 concrete actions). Be specific, use names, keep it under 250 words. No preamble.";
+
+  try {
+    let brief: string;
+
+    if (provider === "deepseek") {
+      const deepseek = new OpenAI({
+        baseURL: "https://api.deepseek.com/v1",
+        apiKey: process.env.DEEPSEEK_API_KEY!,
+      });
+      const res = await deepseek.chat.completions.create({
+        model: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
+        max_tokens: 1200,
+        temperature: 0.7,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: facts },
+        ],
+      });
+      brief = res.choices[0]?.message?.content ?? "";
+    } else {
+      const anthropic = new Anthropic();
+      const res = await anthropic.messages.create({
+        model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5",
+        max_tokens: 1200,
+        system,
+        messages: [{ role: "user", content: facts }],
+      });
+      brief = res.content
+        .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
+        .map((b) => b.text)
+        .join("\n");
+    }
+
+    return NextResponse.json({ brief, live: true });
+  } catch (err) {
+    console.error("Brief generation failed:", err);
+    return NextResponse.json({ error: "Brief generation failed — try again" }, { status: 500 });
+  }
 }

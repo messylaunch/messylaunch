@@ -1,8 +1,9 @@
 // AI outline builder: describe the customer, get a course or project outline.
-// Uses the Anthropic API when ANTHROPIC_API_KEY is set; otherwise returns a
-// sample outline so the flow can be demoed without a key.
+// Supports Anthropic Claude (ANTHROPIC_API_KEY) and DeepSeek (DEEPSEEK_API_KEY).
+// When neither key is set, returns a sample outline so the flow can be demoed.
 
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { db } from "./db";
 
 export type OutlineItem = { title: string; type: string; content: string };
@@ -15,6 +16,35 @@ export type Outline = {
   sections: OutlineSection[];
   tasks?: { title: string; details: string; assignedTo: "ADMIN" | "CLIENT" }[];
 };
+
+// ---- Provider detection ----
+
+export type AIProvider = "anthropic" | "deepseek";
+
+export function aiProvider(): AIProvider | null {
+  if (process.env.DEEPSEEK_API_KEY) return "deepseek";
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  return null;
+}
+
+export function aiConfigured(): boolean {
+  return aiProvider() !== null;
+}
+
+export function aiProviderLabel(): string {
+  const p = aiProvider();
+  if (p === "deepseek") return "DeepSeek";
+  if (p === "anthropic") return "Anthropic Claude";
+  return "AI";
+}
+
+export function aiProviderModel(): string {
+  const p = aiProvider();
+  if (p === "deepseek") return process.env.DEEPSEEK_MODEL ?? "deepseek-chat";
+  return process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
+}
+
+// ---- Constants ----
 
 const ITEM_TYPE_LIST =
   "OVERVIEW, LESSON, TUTORIAL, SCENARIO, REAL_WORLD, BRAINSTORM, ASSIGNMENT, KNOWLEDGE_CHECK, CONCLUSION, BOOK_CALL";
@@ -63,6 +93,16 @@ const OUTLINE_SCHEMA = {
   required: ["title", "description", "sections"],
 };
 
+const SYSTEM_PROMPT = (kind: "COURSE" | "PROJECT") =>
+  `You design ${kind === "COURSE" ? "courses" : "client projects"} for Messy Launch, a company that helps business owners through the messy early stage — getting clear on their offer, building their online presence, launching organically, and learning to run the business themselves.
+
+A COURSE is premade and resellable: one goal, self-paced within a time frame (1/2/4/8 weeks), organized as modules containing items.
+A PROJECT is a tailored collaboration with one client: same section/item structure, but it also has two-way tasks — things the client owes Michael (assignedTo CLIENT) and things Michael owes the client (assignedTo ADMIN) — with real deadlines and an approval flow.
+
+Every item must use one of these types: ${ITEM_TYPE_LIST}. Write item content as practical, plain-spoken guidance (2-5 sentences or a short list). ${kind === "PROJECT" ? "Include 4-8 tasks split between ADMIN and CLIENT." : "Set a realistic durationWeeks of 1, 2, 4, or 8."}`;
+
+// ---- Shared context builder ----
+
 async function existingWorkContext(useExisting: boolean): Promise<string> {
   if (!useExisting) return "";
   const courses = await db.course.findMany({
@@ -97,29 +137,20 @@ async function existingWorkContext(useExisting: boolean): Promise<string> {
   return `\n\nHere are the outlines of past Messy Launch courses and projects. Use them as a rough framework — mirror their structure and pacing where it fits, but tailor everything to this customer:\n\n${courseText}\n\n${projectText}`;
 }
 
-export async function generateOutline(opts: {
-  kind: "COURSE" | "PROJECT";
-  prompt: string;
-  useExisting: boolean;
-}): Promise<Outline> {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return sampleOutline(opts.kind, opts.prompt);
-  }
+// ---- Anthropic path (Claude) ----
 
-  const context = await existingWorkContext(opts.useExisting);
-  const system = `You design ${opts.kind === "COURSE" ? "courses" : "client projects"} for Messy Launch, a company that helps business owners through the messy early stage — getting clear on their offer, building their online presence, launching organically, and learning to run the business themselves.
-
-A COURSE is premade and resellable: one goal, self-paced within a time frame (1/2/4/8 weeks), organized as modules containing items.
-A PROJECT is a tailored collaboration with one client: same section/item structure, but it also has two-way tasks — things the client owes Michael (assignedTo CLIENT) and things Michael owes the client (assignedTo ADMIN) — with real deadlines and an approval flow.
-
-Every item must use one of these types: ${ITEM_TYPE_LIST}. Write item content as practical, plain-spoken guidance (2-5 sentences or a short list). ${opts.kind === "PROJECT" ? "Include 4-8 tasks split between ADMIN and CLIENT." : "Set a realistic durationWeeks of 1, 2, 4, or 8."}${context}`;
-
+async function generateWithAnthropic(
+  kind: "COURSE" | "PROJECT",
+  prompt: string,
+  context: string
+): Promise<Outline> {
+  const system = SYSTEM_PROMPT(kind) + context;
   const anthropic = new Anthropic();
   const res = await anthropic.messages.create({
     model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5",
     max_tokens: 8000,
     system,
-    messages: [{ role: "user", content: `Build a ${opts.kind.toLowerCase()} outline for this customer/situation:\n\n${opts.prompt}` }],
+    messages: [{ role: "user", content: `Build a ${kind.toLowerCase()} outline for this customer/situation:\n\n${prompt}` }],
     tools: [
       {
         name: "save_outline",
@@ -133,17 +164,80 @@ Every item must use one of these types: ${ITEM_TYPE_LIST}. Write item content as
   const toolUse = res.content.find((b) => b.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") throw new Error("AI did not return an outline");
   const out = toolUse.input as Omit<Outline, "kind">;
-  return { kind: opts.kind, ...out };
+  return { kind, ...out };
 }
 
-// Deterministic fallback so the AI builder is demoable without an API key.
+// ---- DeepSeek path (OpenAI-compatible) ----
+
+async function generateWithDeepSeek(
+  kind: "COURSE" | "PROJECT",
+  prompt: string,
+  context: string
+): Promise<Outline> {
+  const system = SYSTEM_PROMPT(kind) + context;
+  const deepseek = new OpenAI({
+    baseURL: "https://api.deepseek.com/v1",
+    apiKey: process.env.DEEPSEEK_API_KEY!,
+  });
+
+  const res = await deepseek.chat.completions.create({
+    model: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
+    max_tokens: 8000,
+    temperature: 0.7,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: `Build a ${kind.toLowerCase()} outline for this customer/situation:\n\n${prompt}` },
+    ],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "save_outline",
+          description: "Save the finished outline",
+          parameters: OUTLINE_SCHEMA,
+        },
+      },
+    ],
+    tool_choice: { type: "function", function: { name: "save_outline" } },
+  });
+
+  const toolCall = res.choices[0]?.message?.tool_calls?.[0];
+  if (!toolCall || !("function" in toolCall) || toolCall.function.name !== "save_outline") {
+    throw new Error("AI did not return an outline");
+  }
+  const out = JSON.parse(toolCall.function.arguments) as Omit<Outline, "kind">;
+  return { kind, ...out };
+}
+
+// ---- Main entry point ----
+
+export async function generateOutline(opts: {
+  kind: "COURSE" | "PROJECT";
+  prompt: string;
+  useExisting: boolean;
+}): Promise<Outline> {
+  const provider = aiProvider();
+  if (!provider) {
+    return sampleOutline(opts.kind, opts.prompt);
+  }
+
+  const context = await existingWorkContext(opts.useExisting);
+
+  if (provider === "deepseek") {
+    return generateWithDeepSeek(opts.kind, opts.prompt, context);
+  }
+  return generateWithAnthropic(opts.kind, opts.prompt, context);
+}
+
+// ---- Deterministic fallback so the AI builder is demoable without any API key ----
+
 function sampleOutline(kind: "COURSE" | "PROJECT", prompt: string): Outline {
   const topic = prompt.slice(0, 60) || "your customer";
   if (kind === "COURSE") {
     return {
       kind,
       title: `Launch Plan: ${topic}`,
-      description: `(Sample outline — set ANTHROPIC_API_KEY to generate real ones.) A guided path from idea to first customers for: ${prompt}`,
+      description: `(Sample outline — set ANTHROPIC_API_KEY or DEEPSEEK_API_KEY to generate real ones.) A guided path from idea to first customers for: ${prompt}`,
       durationWeeks: 4,
       sections: [
         {
@@ -176,7 +270,7 @@ function sampleOutline(kind: "COURSE" | "PROJECT", prompt: string): Outline {
   return {
     kind,
     title: `Project: ${topic}`,
-    description: `(Sample outline — set ANTHROPIC_API_KEY to generate real ones.) A collaboration plan for: ${prompt}`,
+    description: `(Sample outline — set ANTHROPIC_API_KEY or DEEPSEEK_API_KEY to generate real ones.) A collaboration plan for: ${prompt}`,
     sections: [
       {
         title: "Kickoff",
