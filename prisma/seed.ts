@@ -69,6 +69,12 @@ async function main() {
     "https://randomuser.me/api/portraits/men/51.jpg",
     "High school coach breaking down game film for players chasing scholarships. Parents are the real customer."
   );
+  const priya = await mkClient(
+    "Priya — \"The Oreo Lady\"",
+    "priya@theoreolady.example",
+    "https://randomuser.me/api/portraits/women/23.jpg",
+    "DRAFT client — real relationship, placeholder bio. Runs a dessert food truck; wants the fast messy-launch toolkit to get mobile ordering + a launch site live quickly. Fill in her real story/first win before publishing."
+  );
 
   // ---------- Niches ----------
   const nicheData = [
@@ -107,6 +113,13 @@ async function main() {
       description:
         "Coaches and analysts turning film breakdowns into a service parents happily pay for — recruiting profiles, highlight reels, and more.",
     },
+    {
+      slug: "food-trucks",
+      name: "Food Trucks",
+      emoji: "🚚",
+      description:
+        "Mobile food businesses that need to get launched fast — a simple site, mobile ordering, and a following before the truck even hits the street.",
+    },
   ];
   const niches: Record<string, { id: string }> = {};
   for (const n of nicheData) niches[n.slug] = await db.niche.create({ data: n });
@@ -128,6 +141,10 @@ async function main() {
       currentState:
         "Now Better Man Coatings has a one-page site with a quote form, a review-collection habit after every job, and a QR business card that gets scanned at supply houses. Weekends are booked three weeks out.",
       services: "Website, Google Business Profile, Review system, QR business cards",
+      founderName: "Marcus Bell",
+      founderPhotoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+      founderBio:
+        "Eight years coating floors for a franchise before he went out on his own — Marcus figures if he's going to do the work anyway, it should build his name instead of someone else's.",
       isPublished: true,
     },
   });
@@ -148,6 +165,10 @@ async function main() {
       currentState:
         "The shop now runs a content day once a month — one afternoon of filming becomes 20 shorts. Weekday chairs are at 80% and he's interviewing for a fifth barber.",
       services: "Rebooking automation, Content system, Booking funnel",
+      founderName: "Andre Thompson",
+      founderPhotoUrl: "https://randomuser.me/api/portraits/men/83.jpg",
+      founderBio:
+        "Andre's been behind the chair for over a decade. Camera-ready and community-first — half his new clients now come from a shop that treats content like part of the craft, not an afterthought.",
       isPublished: true,
     },
   });
@@ -209,6 +230,28 @@ async function main() {
         "Booked through the season. Now we're working on the off-season subscription so revenue doesn't stop when the games do.",
       services: "Offer design, Website, Parent referral system",
       isPublished: true,
+    },
+  });
+
+  // DRAFT — real relationship, placeholder content. Edit in /admin/businesses
+  // and flip isPublished on when it's ready to go live.
+  await db.business.create({
+    data: {
+      clientId: priya.id,
+      nicheId: niches["food-trucks"].id,
+      slug: "the-oreo-lady",
+      name: "The Oreo Lady",
+      tagline: "[Add her tagline here]",
+      logoUrl: null,
+      location: "[City, State]",
+      story: "[Add her short story — what she does and who she serves]",
+      firstWin: "[Add her first messy-launch win]",
+      currentState: "[Add what the business looks like now]",
+      services: "Messy Launch toolkit, Mobile ordering",
+      founderName: "Priya",
+      founderPhotoUrl: null,
+      founderBio: "[Add a short shoutout for the person behind the truck]",
+      isPublished: false,
     },
   });
 

@@ -57,6 +57,12 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     {b.isPublished && <span className="ml-2 text-ok">● live on portfolio</span>}
                   </p>
                 </div>
+                <Link
+                  href={`/admin/businesses/${b.id}`}
+                  className="ml-auto rounded-lg border border-line px-3 py-1.5 text-xs font-semibold text-sub transition hover:border-accent/50 hover:text-ink"
+                >
+                  Edit portfolio entry
+                </Link>
               </div>
               <div className="mt-4 space-y-2">
                 {b.projects.map((p) => {

@@ -69,6 +69,17 @@ export default async function NichePage({ params }: { params: Promise<{ slug: st
                   ))}
                 </div>
               )}
+              {b.founderBio && (
+                <div className="mt-6 flex items-start gap-3 border-t border-line pt-6">
+                  {b.founderPhotoUrl && (
+                    <img src={b.founderPhotoUrl} alt={b.founderName ?? ""} className="h-11 w-11 shrink-0 rounded-full object-cover" />
+                  )}
+                  <div>
+                    {b.founderName && <p className="text-xs font-bold uppercase tracking-wider text-faint">{b.founderName}</p>}
+                    <p className="mt-1 text-sm italic leading-relaxed text-sub">&ldquo;{b.founderBio}&rdquo;</p>
+                  </div>
+                </div>
+              )}
             </article>
           ))}
         </div>
